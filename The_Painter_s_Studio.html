@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Painter's Studio: Mobile</title>
+    <style>
+        :root {
+            --bg-color: #1a1a24;
+            --panel-bg: #242436;
+            --text-main: #e0e0eb;
+            --accent: #ff4757;
+            --accent-hover: #ff6b81;
+            --success: #2ed573;
+            --gold: #ffa502;
+            --mythic: #a29bfe;
+            --perfect: #00d2d3;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .god-mode-trigger {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.15;
+            transition: opacity 0.3s;
+            z-index: 999;
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 30px;
+        }
+
+        header {
+            text-align: center;
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 { margin: 0 0 5px 0; font-size: 1.3em; color: var(--gold); }
+        h2 { margin: 0 0 10px 0; font-size: 1.1em; border-bottom: 2px solid #444; padding-bottom: 5px;}
+
+        .panel {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .stats-text { font-size: 1em; margin: 4px 0; }
+        .cash { color: var(--success); font-weight: bold; font-size: 1.1em;}
+        .level { color: var(--gold); font-weight: bold; }
+        .perfect-stat { color: var(--perfect); font-weight: bold; font-size: 1.1em; text-shadow: 0 0 5px rgba(0,210,211,0.5); }
+
+        .progress-bar {
+            width: 100%;
+            background: #333;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            width: 0%;
+            transition: width 0.3s ease-out;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 2px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+            touch-action: manipulation;
+        }
+
+        button:active:not(:disabled) { transform: scale(0.96); }
+        button:disabled { background: #444; color: #888; }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        select {
+            padding: 12px;
+            background: #33334d;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 8px;
+            font-size: 1em;
+            appearance: none;
+            outline: none;
+        }
+
+        .btn-paint {
+            font-size: 1.3em;
+            padding: 18px;
+            background: var(--success);
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 0 #209653;
+            margin-top: 5px;
+        }
+        .btn-paint:active { transform: translateY(4px); box-shadow: 0 0 0 #209653; }
+
+        .shop-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #2f2f47;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .shop-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .shop-item button {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .gallery-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1b4d5a;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--perfect);
+            box-shadow: 0 0 8px rgba(0, 210, 211, 0.2);
+        }
+
+        .log-container {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            background: #2f2f47;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #888;
+            font-size: 0.9em;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .log-perfect { border-left-color: var(--perfect); background: #1b4d5a; box-shadow: 0 0 12px rgba(0, 210, 211, 0.4);}
+        .log-masterpiece { border-left-color: var(--mythic); background: #3a2a5e; box-shadow: 0 0 10px rgba(162, 155, 254, 0.2);}
+        .log-brilliant { border-left-color: var(--gold); }
+        .log-trash { border-left-color: #576574; opacity: 0.8; }
+        
+        .grade { font-weight: bold; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+
+<div class="god-mode-trigger" onclick="activateGodMode()" title="Happy Little Trees">🖌️</div>
+
+<div class="container">
+    <header>
+        <h1>The Painter's Studio</h1>
+        <div class="stats-text">Lvl <span id="level-display" class="level">1</span>: <span id="title-display">Fingerpainter</span></div>
+        <div class="stats-text">Bank: <span id="cash-display" class="cash">$10</span></div>
+        <div class="stats-text">Perfect Odds: <span id="perfect-display" class="perfect-stat">1 / 1600</span></div>
+        
+        <div class="progress-bar">
+            <div id="exp-fill" class="progress-fill"></div>
+            <div id="exp-display" class="progress-text">0 / 100</div>
+        </div>
+    </header>
+
+    <div class="panel">
+        <div class="controls">
+            <div class="control-group">
+                <label>Canvas Size</label>
+                <select id="size-select" onchange="updateCostUI()">
+                    <option value="0">Small (Free, 0.5x Val/Exp)</option>
+                    <option value="1" selected>Medium ($25, 1.0x Val/Exp)</option>
+                    <option value="2">Large ($150, 2.5x Val/Exp)</option>
+                    <option value="3">Mural ($1.5k, 5.0x Val/Exp)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Painting Style</label>
+                <select id="style-select" onchange="updateCostUI()">
+                    <option value="0">Abstract (Free, 1.0x Val)</option>
+                    <option value="1">Still Life ($50, 1.5x Val)</option>
+                    <option value="2">Landscape ($200, 2.5x Val)</option>
+                    <option value="3">Portrait ($800, 4.0x Val)</option>
+                    <option value="4">Surrealism ($3k, 7.0x Val)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 10px; text-align: center; font-size: 1.1em;">
+            Cost: <span id="paint-cost-display" style="color:var(--accent); font-weight:bold;">$25</span>
+        </div>
+        
+        <button id="paint-btn" class="btn-paint" onclick="paint()">🎨 Paint</button>
+        <div id="error-msg" style="color:var(--accent); text-align:center; margin-top:8px; font-size:0.9em; height:15px;"></div>
+    </div>
+
+    <div class="log-container">
+        <h2>Gallery Log</h2>
+        <div id="log-list"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Brush Upgrades (1/21)</h2>
+        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;">Equipped: <strong id="current-brush" style="color:white;">Frayed Stick</strong></div>
+        <div id="brush-shop"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Easel Upgrades (1/21)</h2>
+        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;">Equipped: <strong id="current-easel" style="color:white;">Floor</strong></div>
+        <div id="easel-shop"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Technique Upgrades</h2>
+        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;"><em>Permanently increases your odds of painting a 10,000/10,000 Perfect Masterpiece.</em></div>
+        <div id="tech-shop"></div>
+    </div>
+
+    <div class="panel">
+        <h2 style="color: var(--perfect); border-bottom-color: var(--perfect);">Museum of Perfection</h2>
+        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;"><em>Every 10,000/10,000 painting is immortalized here forever.</em></div>
+        <div id="gallery-list">
+            <div style='color:#aaa; font-style:italic;'>No perfect pieces painted yet. The museum walls are bare.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const levelData = [];
+    for(let i = 1; i <= 100; i++) {
+        let title = "Fingerpainter";
+        if(i > 10) title = "Apprentice";
+        if(i > 20) title = "Amateur Artist";
+        if(i > 30) title = "Local Talent";
+        if(i > 40) title = "Gallery Exhibitor";
+        if(i > 50) title = "Recognized Painter";
+        if(i > 60) title = "Critically Acclaimed";
+        if(i > 70) title = "Visionary";
+        if(i > 80) title = "Modern Master";
+        if(i > 90) title = "Historical Icon";
+        if(i === 100) title = "Grandmaster";
+
+        levelData.push({
+            lvl: i,
+            title: title,
+            minQ: Math.floor(10 + (i * 25)), 
+            maxQ: Math.floor(200 + (i * 85)),
+            minPrice: 5 * i * i,
+            maxPrice: 20 * i * i,
+            expNeeded: Math.floor(100 * Math.pow(1.18, i - 1))
+        });
+    }
+
+    const adjectives = ["Morning", "Silent", "Crimson", "Golden", "Neon", "Shattered", "Melancholy", "Forgotten", "Eternal", "Rustic", "Vibrant", "Dark", "Lucid", "Ethereal", "Whispering", "Bleak", "Vivid", "Celestial", "Abyssal", "Radiant", "Weeping", "Fractured"];
+    const nouns = ["Dew", "Void", "Tide", "Decay", "Whisper", "Flame", "Hour", "Dreams", "Nights", "Charm", "Breeze", "Starlight", "Leap", "Path", "Echo", "Symphony", "Illusion", "Horizon", "Mirage", "Aura", "Sorrow", "Canvas"];
+    
+    function generatePaintingName() {
+        return `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
+    }
+
+    const brushes = [
+        { name: "Frayed Stick", cost: 0, bonus: 0 },
+        { name: "Cheap Synthetic", cost: 150, bonus: 50 },
+        { name: "Hobbyist Bristle", cost: 500, bonus: 120 },
+        { name: "Student Nylon", cost: 1200, bonus: 200 },
+        { name: "Stiff Boar Hair", cost: 3000, bonus: 300 },
+        { name: "Soft Camel Hair", cost: 6500, bonus: 420 },
+        { name: "Pony Hair Wash", cost: 12000, bonus: 550 },
+        { name: "Goat Hair Mop", cost: 25000, bonus: 700 },
+        { name: "Badger Blender", cost: 50000, bonus: 850 },
+        { name: "Ox Hair Flat", cost: 100000, bonus: 1000 },
+        { name: "Sable Blend", cost: 250000, bonus: 1150 },
+        { name: "Pure Red Sable", cost: 500000, bonus: 1300 },
+        { name: "Kolinsky Sable Pro", cost: 1000000, bonus: 1450 },
+        { name: "Grandmaster Kolinsky", cost: 2500000, bonus: 1600 },
+        { name: "Diamond Encrusted", cost: 5000000, bonus: 1750 },
+        { name: "Meteorite Bristle", cost: 10000000, bonus: 1900 },
+        { name: "Unicorn Hair", cost: 25000000, bonus: 2050 },
+        { name: "Angel Feather", cost: 50000000, bonus: 2200 },
+        { name: "Ancient Brush", cost: 100000000, bonus: 2350 },
+        { name: "Reality Warper", cost: 250000000, bonus: 2500 },
+        { name: "Da Vinci's Ghost", cost: 1000000000, bonus: 3000 }
+    ];
+
+    const easels = [
+        { name: "Floor", cost: 0, expM: 1.0, valM: 1.0 },
+        { name: "Cardboard Box", cost: 200, expM: 1.05, valM: 1.05 },
+        { name: "Wobbly Stand", cost: 600, expM: 1.1, valM: 1.1 },
+        { name: "Basic A-Frame", cost: 1500, expM: 1.15, valM: 1.2 },
+        { name: "Tabletop Easel", cost: 3500, expM: 1.2, valM: 1.3 },
+        { name: "Field Easel", cost: 8000, expM: 1.3, valM: 1.4 },
+        { name: "Sturdy H-Frame", cost: 18000, expM: 1.4, valM: 1.5 },
+        { name: "Drafting Table", cost: 35000, expM: 1.5, valM: 1.7 },
+        { name: "Studio H-Frame", cost: 70000, expM: 1.6, valM: 2.0 },
+        { name: "Mahogany Easel", cost: 150000, expM: 1.8, valM: 2.4 },
+        { name: "Electric Tilt Table", cost: 300000, expM: 2.0, valM: 2.8 },
+        { name: "Gallery Pedestal", cost: 750000, expM: 2.3, valM: 3.5 },
+        { name: "Museum Rig", cost: 1500000, expM: 2.6, valM: 4.5 },
+        { name: "Zero-G Setup", cost: 3500000, expM: 3.0, valM: 6.0 },
+        { name: "Titanium Frame", cost: 8000000, expM: 3.5, valM: 8.0 },
+        { name: "Holographic Setup", cost: 20000000, expM: 4.0, valM: 10.0 },
+        { name: "Quantum Easel", cost: 50000000, expM: 5.0, valM: 15.0 },
+        { name: "Time Chamber", cost: 150000000, expM: 6.5, valM: 25.0 },
+        { name: "Astral Anchor", cost: 500000000, expM: 8.0, valM: 40.0 },
+        { name: "Tesseract Holder", cost: 2000000000, expM: 10.0, valM: 70.0 },
+        { name: "Loom of Creation", cost: 10000000000, expM: 20.0, valM: 150.0 }
+    ];
+
+    const techniques = [
+        { name: "Daydreaming", cost: 1500, adds: 1 },         
+        { name: "Color Theory", cost: 7500, adds: 2 },        
+        { name: "Creative Spark", cost: 35000, adds: 4 },     
+        { name: "Flow State", cost: 150000, adds: 8 },        
+        { name: "Muse's Whisper", cost: 750000, adds: 16 },   
+        { name: "Savant Syndrome", cost: 3500000, adds: 32 }, 
+        { name: "Lucid Dreaming", cost: 15000000, adds: 36 }, 
+        { name: "Divine Geometry", cost: 80000000, adds: 60 }, 
+        { name: "Eldritch Insight", cost: 500000000, adds: 90 }, 
+        { name: "Third Eye Opened", cost: 3000000000, adds: 150 } 
+    ];
+
+    const sizeMods = [
+        { cost: 0, mult: 0.5 },
+        { cost: 25, mult: 1.0 },
+        { cost: 150, mult: 2.5 },
+        { cost: 1500, mult: 5.0 }
+    ];
+
+    const styleMods = [
+        { cost: 0, mult: 1.0 },
+        { cost: 50, mult: 1.5 },
+        { cost: 200, mult: 2.5 },
+        { cost: 800, mult: 4.0 },
+        { cost: 3000, mult: 7.0 }
+    ];
+
+    let player = {
+        level: 1,
+        exp: 0,
+        cash: 10,
+        brushIdx: 0,
+        easelIdx: 0,
+        techIdx: 0,
+        perfectBase: 1,
+        isBobRoss: false
+    };
+
+    let museumGallery = [];
+
+    function activateGodMode() {
+        if (player.isBobRoss) return; 
+        player.isBobRoss = true;
+        player.level = 100;
+        player.exp = 0;
+        player.cash += 1000000000000; 
+        player.brushIdx = brushes.length - 1; 
+        player.easelIdx = easels.length - 1; 
+        player.perfectBase = 1600; 
+        
+        logAction(`<div style="text-align:center; padding: 5px;">
+                    <strong style="color: var(--success); font-size: 1.2em;">Happy Little Trees</strong><br>
+                    <em style="color: white; font-size: 0.9em;">God Mode Activated. No mistakes, just happy accidents.</em>
+                   </div>`, "log-perfect");
+        updateUI();
+    }
+
+    function getPaintCost() {
+        let sizeVal = document.getElementById("size-select").value;
+        let styleVal = document.getElementById("style-select").value;
+        return sizeMods[sizeVal].cost + styleMods[styleVal].cost;
+    }
+
+    function updateCostUI() {
+        let cost = getPaintCost();
+        document.getElementById("paint-cost-display").innerText = cost === 0 ? "FREE" : "$" + cost.toLocaleString();
+    }
+
+    function paint() {
+        let cost = getPaintCost();
+        let errorMsg = document.getElementById("error-msg");
+        
+        if (player.cash < cost) {
+            errorMsg.innerText = "Not enough cash!";
+            return;
+        }
+        
+        errorMsg.innerText = "";
+        player.cash -= cost;
+
+        let currentLvlData = levelData[player.level - 1];
+        let currentBrush = brushes[player.brushIdx];
+        let currentEasel = easels[player.easelIdx];
+        let sizeMod = sizeMods[document.getElementById("size-select").value];
+        let styleMod = styleMods[document.getElementById("style-select").value];
+
+        let finalQuality;
+        let isPerfect = false;
+
+        let perfectRoll = Math.floor(Math.random() * 1600) + 1;
+        if (perfectRoll <= player.perfectBase || player.isBobRoss) {
+            isPerfect = true;
+            finalQuality = 10000;
+        } else {
+            let rawQuality = Math.floor(Math.random() * (currentLvlData.maxQ - currentLvlData.minQ + 1)) + currentLvlData.minQ;
+            finalQuality = rawQuality + currentBrush.bonus;
+            if (finalQuality >= 10000) {
+                finalQuality = 10000;
+                isPerfect = true;
+            }
+        }
+
+        let cashMult = 0, baseExp = 0, gradeName = "", cssClass = "";
+        
+        if (isPerfect || finalQuality === 10000) {
+            cashMult = 100000.0; baseExp = 100000; gradeName = "Perfect Masterpiece"; cssClass = "log-perfect";
+        } else if (finalQuality <= 2000) {
+            cashMult = 0.5; baseExp = 10; gradeName = "Trash"; cssClass = "log-trash";
+        } else if (finalQuality <= 4000) {
+            cashMult = 1.0; baseExp = 30; gradeName = "Amateur";
+        } else if (finalQuality <= 6000) {
+            cashMult = 1.5; baseExp = 75; gradeName = "Decor";
+        } else if (finalQuality <= 8000) {
+            cashMult = 3.0; baseExp = 250; gradeName = "Gallery Quality";
+        } else if (finalQuality < 9000) {
+            cashMult = 10.0; baseExp = 1000; gradeName = "Brilliant"; cssClass = "log-brilliant";
+        } else {
+            cashMult = 50000.0; baseExp = 25000; gradeName = "Modern Mona Lisa"; cssClass = "log-masterpiece";
+        }
+
+        let basePrice = Math.floor(Math.random() * (currentLvlData.maxPrice - currentLvlData.minPrice + 1)) + currentLvlData.minPrice;
+        let finalCash = Math.floor(basePrice * cashMult * sizeMod.mult * styleMod.mult * currentEasel.valM);
+        let finalExp = Math.floor(baseExp * sizeMod.mult * currentEasel.expM);
+
+        player.cash += finalCash;
+        addExp(finalExp);
+        updateUI();
+
+        let pName = generatePaintingName();
+        logAction(`<strong>${finalQuality}/10000</strong> <span class="grade">(${gradeName})</span><br>
+                   <em>"${pName}"</em> - Sold for <span class="cash">$${formatMoney(finalCash)}</span> (+${formatMoney(finalExp)} EXP)`, cssClass);
+
+        if (isPerfect || finalQuality === 10000) {
+            logAction(`<strong style="font-size:1.1em; color:white;">"Ted, you're Dusty..."</strong><br><small style="color:#ddd;">A flawless piece of history was created.</small>`, "log-perfect");
+            museumGallery.push({ name: pName, value: finalCash });
+            updateMuseumUI();
+        }
+    }
+
+    function addExp(amount) {
+        if (player.level >= 100) return;
+        player.exp += amount;
+        let currentLvlData = levelData[player.level - 1];
+        let leveledUp = false;
+
+        while (player.exp >= currentLvlData.expNeeded && player.level < 100) {
+            player.exp -= currentLvlData.expNeeded;
+            player.level++;
+            currentLvlData = levelData[player.level - 1];
+            leveledUp = true;
+        }
+
+        if(leveledUp) {
+            logAction(`<strong>Level Up!</strong> Reached Level ${player.level} (${currentLvlData.title})!`, "log-brilliant");
+        }
+    }
+
+    function buyBrush() {
+        let nextBrush = brushes[player.brushIdx + 1];
+        if (nextBrush && player.cash >= nextBrush.cost) {
+            player.cash -= nextBrush.cost;
+            player.brushIdx++;
+            updateUI();
+        }
+    }
+
+    function buyEasel() {
+        let nextEasel = easels[player.easelIdx + 1];
+        if (nextEasel && player.cash >= nextEasel.cost) {
+            player.cash -= nextEasel.cost;
+            player.easelIdx++;
+            updateUI();
+        }
+    }
+
+    function buyTech() {
+        let nextTech = techniques[player.techIdx];
+        if (nextTech && player.cash >= nextTech.cost) {
+            player.cash -= nextTech.cost;
+            player.perfectBase += nextTech.adds;
+            player.techIdx++;
+            updateUI();
+        }
+    }
+
+    function formatMoney(amount) {
+        if (amount >= 1e12) return (amount / 1e12).toFixed(2) + 'T';
+        if (amount >= 1e9) return (amount / 1e9).toFixed(2) + 'B';
+        if (amount >= 1e6) return (amount / 1e6).toFixed(2) + 'M';
+        return amount.toLocaleString();
+    }
+
+    function updateMuseumUI() {
+        let galleryContainer = document.getElementById("gallery-list");
+        if (museumGallery.length === 0) return;
+
+        let html = "";
+        for (let i = museumGallery.length - 1; i >= 0; i--) {
+            html += `
+                <div class="gallery-item">
+                    <div>
+                        <strong style="color:white;">"${museumGallery[i].name}"</strong><br>
+                        <small style="color:var(--perfect);">10,000 / 10,000</small>
+                    </div>
+                    <div style="font-weight:bold; color:var(--success);">$${formatMoney(museumGallery[i].value)}</div>
+                </div>
+            `;
+        }
+        galleryContainer.innerHTML = html;
+    }
+
+    function updateUI() {
+        document.getElementById("cash-display").innerText = "$" + formatMoney(player.cash);
+        document.getElementById("level-display").innerText = player.level;
+        document.getElementById("title-display").innerText = levelData[player.level - 1].title;
+        
+        let oddsDisplay = player.perfectBase >= 1600 ? "100%" : `${player.perfectBase} / 1600`;
+        document.getElementById("perfect-display").innerText = oddsDisplay;
+
+        let expNeed = levelData[player.level - 1].expNeeded;
+        if (player.level === 100) {
+            document.getElementById("exp-display").innerText = "MAX";
+            document.getElementById("exp-fill").style.width = "100%";
+        } else {
+            document.getElementById("exp-display").innerText = `${formatMoney(player.exp)} / ${formatMoney(expNeed)}`;
+            let percent = (player.exp / expNeed) * 100;
+            document.getElementById("exp-fill").style.width = percent + "%";
+        }
+
+        let curBrush = brushes[player.brushIdx];
+        let curEasel = easels[player.easelIdx];
+        document.getElementById("current-brush").innerText = `${curBrush.name} (+${curBrush.bonus} Q)`;
+        document.getElementById("current-easel").innerText = `${curEasel.name} (+${Math.round((curEasel.expM - 1)*100)}% E)`;
+
+        let brushShop = document.getElementById("brush-shop");
+        let nextBrush = brushes[player.brushIdx + 1];
+        if (nextBrush) {
+            let canAfford = player.cash >= nextBrush.cost;
+            brushShop.innerHTML = `
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <div>
+                            <strong>${nextBrush.name}</strong> <small>(${player.brushIdx + 2}/${brushes.length})</small><br>
+                            <small style="color:var(--success);">+${nextBrush.bonus} Quality Score</small>
+                        </div>
+                    </div>
+                    <button onclick="buyBrush()" ${canAfford ? "" : "disabled"}>Buy $${formatMoney(nextBrush.cost)}</button>
+                </div>
+            `;
+        } else {
+            brushShop.innerHTML = `<div class="shop-item"><em>All Brushes Owned!</em></div>`;
+        }
+
+        let easelShop = document.getElementById("easel-shop");
+        let nextEasel = easels[player.easelIdx + 1];
+        if (nextEasel) {
+            let canAfford = player.cash >= nextEasel.cost;
+            easelShop.innerHTML = `
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <div>
+                            <strong>${nextEasel.name}</strong> <small>(${player.easelIdx + 2}/${easels.length})</small><br>
+                            <small style="color:var(--gold);">+${Math.round((nextEasel.expM - 1)*100)}% EXP, +${Math.round((nextEasel.valM - 1)*100)}% Val</small>
+                        </div>
+                    </div>
+                    <button onclick="buyEasel()" ${canAfford ? "" : "disabled"}>Buy $${formatMoney(nextEasel.cost)}</button>
+                </div>
+            `;
+        } else {
+            easelShop.innerHTML = `<div class="shop-item"><em>All Easels Owned!</em></div>`;
+        }
+
+        let techShop = document.getElementById("tech-shop");
+        let nextTech = techniques[player.techIdx];
+        if (nextTech) {
+            let canAfford = player.cash >= nextTech.cost;
+            techShop.innerHTML = `
+                <div class="shop-item">
+                    <div class="shop-info">
+                        <div>
+                            <strong>${nextTech.name}</strong> <small>(${player.techIdx + 1}/${techniques.length})</small><br>
+                            <small style="color:var(--perfect);">+${nextTech.adds} Perfect Odds (Numerator)</small>
+                        </div>
+                    </div>
+                    <button onclick="buyTech()" ${canAfford ? "" : "disabled"}>Buy $${formatMoney(nextTech.cost)}</button>
+                </div>
+            `;
+        } else {
+            techShop.innerHTML = `<div class="shop-item"><em>Maximum Inspiration Reached!</em></div>`;
+        }
+        
+        updateCostUI();
+    }
+
+    function logAction(message, cssClass = "") {
+        let logList = document.getElementById("log-list");
+        let entry = document.createElement("div");
+        entry.className = `log-entry ${cssClass}`;
+        entry.innerHTML = message;
+        logList.prepend(entry);
+        
+        if (logList.children.length > 30) {
+            logList.removeChild(logList.lastChild);
+        }
+    }
+
+    updateUI();
+
+</script>
+</body>
+</html>
