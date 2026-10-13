@@ -1,697 +1,1629 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Painter's Studio: Mobile</title>
-    <style>
-        :root {
-            --bg-color: #1a1a24;
-            --panel-bg: #242436;
-            --text-main: #e0e0eb;
-            --accent: #ff4757;
-            --accent-hover: #ff6b81;
-            --success: #2ed573;
-            --gold: #ffa502;
-            --mythic: #a29bfe;
-            --perfect: #00d2d3;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>The Joy of Collecting - Master Studio Edition</title>
+<style>
+  :root {
+    --bg-base: #1a1a1a;
+    --panel-bg: #262626;
+    --panel-border: #404040;
+    --silver-bright: #f5f5f5;
+    --silver-main: #d4d4d4;
+    --silver-dim: #8c8c8c;
+    --silver-dark: #525252;
+    
+    --wood-light: #d2a679;
+    --wood-dark: #8b5a2b;
+    --titanium-white: #ffffff;
+    --phthalo-blue: #0f4c81;
+    --sap-green: #4f7942;
+    --alizarin-crimson: #e32636;
+    
+    --status-green: #4ade80;
+    --status-red: #f87171;
+    --status-amber: #fbbf24;
+    --status-blue: #60a5fa;
+    --status-purple: #c084fc;
+    --status-exotic: #fb923c;
+    
+    --t0-col: #8c8c8c; --t1-col: #4ade80; --t2-col: #60a5fa; --t3-col: #3b82f6; --t4-col: #c084fc; 
+    --t5-col: #d946ef; --t6-col: #fbbf24; --t7-col: #ea580c; --t8-col: #f87171; --t9-col: #e32636;
+  }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            -webkit-tap-highlight-color: transparent;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        .god-mode-trigger {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 24px;
-            cursor: pointer;
-            opacity: 0.15;
-            transition: opacity 0.3s;
-            z-index: 999;
-            user-select: none;
-        }
+  html, body { width: 100%; height: 100%; background: var(--bg-base); color: var(--silver-bright); display: flex; flex-direction: column; overflow: hidden; }
 
-        .container {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding-bottom: 30px;
-        }
+  body::before {
+    content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(210, 166, 121, 0.03) 0%, transparent 65%);
+    pointer-events: none; z-index: 1;
+  }
 
-        header {
-            text-align: center;
-            background: var(--panel-bg);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+  header { flex-shrink: 0; background: #111; border-bottom: 2px solid var(--wood-dark); padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; z-index: 10; }
+  .header-top { display: flex; justify-content: space-between; align-items: center; }
+  .brand-title { font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: var(--titanium-white); }
+  .brand-title span { color: var(--wood-light); text-shadow: 0 0 5px rgba(210,166,121,0.4); }
 
-        h1 { margin: 0 0 5px 0; font-size: 1.3em; color: var(--gold); }
-        h2 { margin: 0 0 10px 0; font-size: 1.1em; border-bottom: 2px solid #444; padding-bottom: 5px;}
+  .hud-stats { display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+  .hud-stats::-webkit-scrollbar { display: none; }
+  .hud-pill { background: #000; border: 1px solid var(--panel-border); padding: 3px 6px; border-radius: 3px; font-size: 10px; font-family: monospace; font-weight: bold; }
 
-        .panel {
-            background: var(--panel-bg);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
+  nav { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--panel-bg); border-bottom: 1px solid var(--panel-border); z-index: 9; }
+  .nav-btn { padding: 10px 4px; background: transparent; border: none; border-right: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); color: var(--silver-dim); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.15s; text-align: center; }
+  .nav-btn:nth-child(3n) { border-right: none; }
+  .nav-btn:nth-child(n+7) { border-bottom: none; }
+  .nav-btn.active { background: rgba(210, 166, 121, 0.08); color: var(--wood-light); box-shadow: inset 0 -2px 0 var(--wood-light); }
 
-        .stats-text { font-size: 1em; margin: 4px 0; }
-        .cash { color: var(--success); font-weight: bold; font-size: 1.1em;}
-        .level { color: var(--gold); font-weight: bold; }
-        .perfect-stat { color: var(--perfect); font-weight: bold; font-size: 1.1em; text-shadow: 0 0 5px rgba(0,210,211,0.5); }
+  main { flex: 1; overflow-y: auto; padding: 10px; padding-bottom: 70px; z-index: 2; }
+  .view-tab { display: none; flex-direction: column; gap: 10px; }
+  .view-tab.active { display: flex; }
 
-        .progress-bar {
-            width: 100%;
-            background: #333;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 8px;
-            position: relative;
-        }
+  .panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 5px; padding: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+  .panel-header { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #fff; padding-bottom: 6px; border-bottom: 1px solid var(--panel-border); display: flex; justify-content: space-between; align-items: center; }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--gold));
-            width: 0%;
-            transition: width 0.3s ease-out;
-        }
-        
-        .progress-text {
-            position: absolute;
-            top: 2px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 0.8em;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 1px 1px 2px #000;
-        }
+  .control-bar { display: flex; flex-wrap: wrap; gap: 6px; background: #111; padding: 6px 8px; border-radius: 4px; border: 1px solid var(--panel-border); align-items: center; }
+  .control-group { display: flex; gap: 4px; align-items: center; border-right: 1px solid var(--panel-border); padding-right: 6px; }
+  .control-group:last-child { border-right: none; padding-right: 0; }
+  .control-label { font-size: 8.5px; font-weight: bold; color: var(--silver-dim); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px;
-            font-size: 1em;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.1s;
-            touch-action: manipulation;
-        }
+  button.btn { background: #111; border: 1px solid var(--silver-dim); color: var(--silver-bright); padding: 5px 9px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 3px; cursor: pointer; transition: 0.1s; }
+  button.btn:active { background: var(--silver-bright); color: #000; border-color: var(--silver-bright); }
+  button.btn:disabled { opacity: 0.35; cursor: not-allowed; border-color: var(--silver-dark); }
+  
+  button.btn-wood { background: #2b1d11; border-color: var(--wood-light); color: var(--wood-light); }
+  button.btn-wood:active { background: var(--wood-light); color: #000; }
+  button.btn-danger { border-color: var(--status-red); color: var(--status-red); }
+  button.btn-danger:active { background: var(--status-red); color: #fff; }
+  button.btn-purple { border-color: var(--status-purple); color: var(--status-purple); }
+  button.btn-purple:active { background: var(--status-purple); color: #fff; }
 
-        button:active:not(:disabled) { transform: scale(0.96); }
-        button:disabled { background: #444; color: #888; }
+  .fleet-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media(min-width: 600px) { .fleet-grid { grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); } }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .control-group {
-            display: flex;
-            flex-direction: column;
-        }
+  .strain-card { background: #111; border: 2px solid var(--panel-border); border-radius: 4px; padding: 10px; display: flex; flex-direction: column; gap: 6px; position: relative; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+  .strain-card.in-flight { border-left: 4px solid var(--status-amber); }
+  .strain-card.damaged { border-left: 4px solid var(--status-red); }
+  
+  .bud-art-container { display: flex; gap: 10px; align-items: center; background: #1a1a1a; border: 1px solid var(--panel-border); padding: 6px; border-radius: 3px; }
+  .bud-pixel-canvas { width: 72px; height: 72px; image-rendering: pixelated; border-radius: 2px; background: #000; flex-shrink: 0; box-shadow: 2px 2px 5px rgba(0,0,0,0.8); }
 
-        label {
-            font-size: 0.9em;
-            color: #aaa;
-            margin-bottom: 4px;
-        }
+  .spec-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; background: #1a1a1a; padding: 6px; border-radius: 3px; font-size: 9px; font-family: monospace; border: 1px solid var(--panel-border); }
+  .spec-grid span { color: var(--silver-dim); }
 
-        select {
-            padding: 12px;
-            background: #33334d;
-            color: white;
-            border: 1px solid #555;
-            border-radius: 8px;
-            font-size: 1em;
-            appearance: none;
-            outline: none;
-        }
+  .badge { padding: 2px 4px; border-radius: 2px; font-size: 8px; font-weight: 900; font-family: monospace; background: #2b1d11; color: var(--wood-light); border: 1px solid var(--wood-light); }
+  
+  .route-row { background: #111; border: 1px solid var(--panel-border); border-radius: 3px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
 
-        .btn-paint {
-            font-size: 1.3em;
-            padding: 18px;
-            background: var(--success);
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 4px 0 #209653;
-            margin-top: 5px;
-        }
-        .btn-paint:active { transform: translateY(4px); box-shadow: 0 0 0 #209653; }
+  .flight-bar-bg { width: 100%; height: 6px; background: #111; border: 1px solid var(--panel-border); border-radius: 2px; overflow: hidden; margin-top: 2px; }
+  .flight-bar-fill { height: 100%; background: var(--status-amber); width: 0%; box-shadow: 0 0 6px var(--status-amber);}
 
-        .shop-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: #2f2f47;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--accent);
-        }
+  .auction-slot { background: #111; border: 1px solid var(--panel-border); padding: 10px; border-radius: 4px; display: flex; flex-direction: column; gap: 6px; }
+  .auction-timer-bg { width: 100%; height: 5px; background: #111; border: 1px solid var(--status-red); border-radius: 2px; overflow: hidden; }
+  .auction-timer-bar { height: 100%; background: var(--status-red); width: 100%; transition: width 0.1s linear;}
+  .auction-log { height: 44px; background: #1a1a1a; border: 1px solid var(--panel-border); padding: 4px; font-size: 8.5px; font-family: monospace; overflow: hidden; border-radius: 3px; color: var(--silver-main); }
 
-        .shop-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
+  .fraction-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .pack-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 
-        .shop-item button {
-            width: 100%;
-            padding: 10px;
-        }
+  select { background: #111; color: #fff; border: 1px solid var(--silver-dark); padding: 5px; font-size: 10px; border-radius: 3px; outline: none; font-weight: bold; cursor: pointer; }
+  
+  .check-item { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 8px 10px; border: 1px solid var(--panel-border); border-radius: 3px; font-size: 10px; }
+  .check-item.done { border-color: var(--wood-light); background: rgba(210, 166, 121, 0.08); }
 
-        .gallery-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #1b4d5a;
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--perfect);
-            box-shadow: 0 0 8px rgba(0, 210, 211, 0.2);
-        }
-
-        .log-container {
-            background: var(--panel-bg);
-            padding: 15px;
-            border-radius: 12px;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .log-entry {
-            background: #2f2f47;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border-left: 4px solid #888;
-            font-size: 0.9em;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .log-perfect { border-left-color: var(--perfect); background: #1b4d5a; box-shadow: 0 0 12px rgba(0, 210, 211, 0.4);}
-        .log-masterpiece { border-left-color: var(--mythic); background: #3a2a5e; box-shadow: 0 0 10px rgba(162, 155, 254, 0.2);}
-        .log-brilliant { border-left-color: var(--gold); }
-        .log-trash { border-left-color: #576574; opacity: 0.8; }
-        
-        .grade { font-weight: bold; font-size: 1.1em; }
-    </style>
+  #toast-rack { position: fixed; bottom: 16px; left: 10px; right: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 1000; pointer-events: none; }
+  .toast { background: #111; border: 1px solid var(--silver-dark); border-left: 3px solid var(--wood-light); color: #fff; padding: 8px 12px; font-size: 11px; font-weight: bold; font-family: monospace; border-radius: 3px; box-shadow: 0 4px 15px rgba(0,0,0,0.9); animation: slideUp 0.2s, fadeOut 0.4s 2.6s forwards; pointer-events: auto;}
+  
+  @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateY(-5px); } }
+</style>
 </head>
 <body>
 
-<div class="god-mode-trigger" onclick="activateGodMode()" title="Happy Little Trees">🖌️</div>
+<header>
+  <div class="header-top">
+    <div class="brand-title">THE JOY OF COLLECTING <span>// V1.0</span></div>
+    <div style="display:flex; gap:4px;">
+      <button class="btn" style="padding:3px 6px; font-size:8px;" onclick="saveGame()">SAVE</button>
+      <button class="btn" style="padding:3px 6px; font-size:8px;" onclick="loadGame()">LOAD</button>
+      <button class="btn btn-danger" style="padding:3px 6px; font-size:8px;" onclick="godMode()">BOB'S MAGIC</button>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="hud-stats">
+        <div class="hud-pill">FUNDS: <span id="hud-funds" style="color:var(--status-green);">$0</span></div>
+        <div class="hud-pill">STUDIO: <span id="hud-fleet-count">0</span></div>
+        <div class="hud-pill">DEALERS: <span id="hud-pilot-count">0</span></div>
+        <div class="hud-pill">SUPPLIES: <span id="hud-fuel" style="color:var(--wood-light);">0</span></div>
+      </div>
+      <div class="control-bar" style="padding:2px 4px; margin-left:4px;">
+        <button class="btn btn-wood active" id="buy-1" style="padding:2px 4px; font-size:8px;" onclick="setBuyMode(1)">1x</button>
+        <button class="btn" id="buy-0.25" style="padding:2px 4px; font-size:8px;" onclick="setBuyMode(0.25)">25%</button>
+        <button class="btn" id="buy-0.5" style="padding:2px 4px; font-size:8px;" onclick="setBuyMode(0.5)">50%</button>
+        <button class="btn" id="buy-1.0" style="padding:2px 4px; font-size:8px;" onclick="setBuyMode(1.0)">MAX</button>
+      </div>
+  </div>
+</header>
 
-<div class="container">
-    <header>
-        <h1>The Painter's Studio</h1>
-        <div class="stats-text">Lvl <span id="level-display" class="level">1</span>: <span id="title-display">Fingerpainter</span></div>
-        <div class="stats-text">Bank: <span id="cash-display" class="cash">$10</span></div>
-        <div class="stats-text">Perfect Odds: <span id="perfect-display" class="perfect-stat">1 / 1600</span></div>
-        
-        <div class="progress-bar">
-            <div id="exp-fill" class="progress-fill"></div>
-            <div id="exp-display" class="progress-text">0 / 100</div>
+<nav>
+  <button class="nav-btn active" onclick="setTab('market')">Thrift Shops</button>
+  <button class="nav-btn" onclick="setTab('gacha')">Storage Units</button>
+  <button class="nav-btn" onclick="setTab('fleet')">The Studio</button>
+  <button class="nav-btn" onclick="setTab('pilots')">Art Dealers</button>
+  <button class="nav-btn" onclick="setTab('routes')">Galleries</button>
+  <button class="nav-btn" onclick="setTab('auction')">Sotheby's</button>
+  <button class="nav-btn" onclick="setTab('checklist')">Commissions</button>
+  <button class="nav-btn" onclick="setTab('upgrades')">Management</button>
+  <button class="nav-btn" onclick="setTab('gallery')">The Exhibit 🖼️</button>
+</nav>
+
+<main>
+
+  <!-- TAB 1: REVOLVING CORNER MARKET -->
+  <div id="tab-market" class="view-tab active">
+    <div class="panel">
+      <div class="panel-header">
+        <span>Thrift Shop Finds</span>
+        <span style="font-size:10px; color:var(--silver-dim);">RESTOCK: <span id="market-timer" style="font-size:12px; font-weight:bold; color:var(--status-green);">10.0</span>s</span>
+      </div>
+      <p style="font-size:10px; color:var(--silver-dim);">5 random landscape paintings surface every 10 seconds. Snatch them up before other collectors.</p>
+      <div id="market-grid" class="fleet-grid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SEED BANK (GROW OPS) -->
+  <div id="tab-gacha" class="view-tab">
+    <div class="panel">
+      <div class="panel-header">Storage Unit Auctions (Blind Buys)</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; font-weight:bold; margin-bottom:6px;">ABANDONED LOCKERS [T1-T4] ($10K)</div>
+          <div class="pack-row">
+            <button class="btn" onclick="buySeeds(0, 1)">Bid 1x</button>
+            <button class="btn" onclick="buySeeds(0, 5)">Bid 5x</button>
+            <button class="btn btn-wood" onclick="buySeeds(0, 10)">Bid 10x</button>
+          </div>
         </div>
-    </header>
-
-    <div class="panel">
-        <div class="controls">
-            <div class="control-group">
-                <label>Canvas Size</label>
-                <select id="size-select" onchange="updateCostUI()">
-                    <option value="0">Small (Free, 0.5x Val/Exp)</option>
-                    <option value="1" selected>Medium ($25, 1.0x Val/Exp)</option>
-                    <option value="2">Large ($150, 2.5x Val/Exp)</option>
-                    <option value="3">Mural ($1.5k, 5.0x Val/Exp)</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label>Painting Style</label>
-                <select id="style-select" onchange="updateCostUI()">
-                    <option value="0">Abstract (Free, 1.0x Val)</option>
-                    <option value="1">Still Life ($50, 1.5x Val)</option>
-                    <option value="2">Landscape ($200, 2.5x Val)</option>
-                    <option value="3">Portrait ($800, 4.0x Val)</option>
-                    <option value="4">Surrealism ($3k, 7.0x Val)</option>
-                </select>
-            </div>
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; color:var(--status-blue); font-weight:bold; margin-bottom:6px;">ESTATE SALES [T3-T6] ($100K)</div>
+          <div class="pack-row">
+            <button class="btn" style="border-color:var(--status-blue); color:var(--status-blue);" onclick="buySeeds(1, 1)">Bid 1x</button>
+            <button class="btn" style="border-color:var(--status-blue); color:var(--status-blue);" onclick="buySeeds(1, 5)">Bid 5x</button>
+            <button class="btn btn-wood" onclick="buySeeds(1, 10)">Bid 10x</button>
+          </div>
         </div>
-        
-        <div style="margin-bottom: 10px; text-align: center; font-size: 1.1em;">
-            Cost: <span id="paint-cost-display" style="color:var(--accent); font-weight:bold;">$25</span>
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; color:var(--status-purple); font-weight:bold; margin-bottom:6px;">GALLERY LIQUIDATIONS [T5-T8] ($1.0M)</div>
+          <div class="pack-row">
+            <button class="btn btn-purple" onclick="buySeeds(2, 1)">Bid 1x</button>
+            <button class="btn btn-purple" onclick="buySeeds(2, 5)">Bid 5x</button>
+            <button class="btn btn-wood" onclick="buySeeds(2, 10)">Bid 10x</button>
+          </div>
         </div>
-        
-        <button id="paint-btn" class="btn-paint" onclick="paint()">🎨 Paint</button>
-        <div id="error-msg" style="color:var(--accent); text-align:center; margin-top:8px; font-size:0.9em; height:15px;"></div>
-    </div>
-
-    <div class="log-container">
-        <h2>Gallery Log</h2>
-        <div id="log-list"></div>
-    </div>
-
-    <div class="panel">
-        <h2>Brush Upgrades (1/21)</h2>
-        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;">Equipped: <strong id="current-brush" style="color:white;">Frayed Stick</strong></div>
-        <div id="brush-shop"></div>
-    </div>
-
-    <div class="panel">
-        <h2>Easel Upgrades (1/21)</h2>
-        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;">Equipped: <strong id="current-easel" style="color:white;">Floor</strong></div>
-        <div id="easel-shop"></div>
-    </div>
-
-    <div class="panel">
-        <h2>Technique Upgrades</h2>
-        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;"><em>Permanently increases your odds of painting a 10,000/10,000 Perfect Masterpiece.</em></div>
-        <div id="tech-shop"></div>
-    </div>
-
-    <div class="panel">
-        <h2 style="color: var(--perfect); border-bottom-color: var(--perfect);">Museum of Perfection</h2>
-        <div style="margin-bottom: 10px; font-size: 0.9em; color:#aaa;"><em>Every 10,000/10,000 painting is immortalized here forever.</em></div>
-        <div id="gallery-list">
-            <div style='color:#aaa; font-style:italic;'>No perfect pieces painted yet. The museum walls are bare.</div>
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; color:var(--status-amber); font-weight:bold; margin-bottom:6px;">MUSEUM VAULTS [T7-T10] ($5.0M)</div>
+          <div class="pack-row">
+            <button class="btn" style="border-color:var(--status-amber); color:var(--status-amber);" onclick="buySeeds(3, 1)">Bid 1x</button>
+            <button class="btn" style="border-color:var(--status-amber); color:var(--status-amber);" onclick="buySeeds(3, 5)">Bid 5x</button>
+            <button class="btn btn-wood" onclick="buySeeds(3, 10)">Bid 10x</button>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+
+    <div class="panel">
+      <div class="panel-header">Art Dealer Network</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; font-weight:bold; margin-bottom:6px;">INTERNS [T1-T4] ($5K / Hire)</div>
+          <div class="pack-row">
+            <button class="btn" onclick="buyResumes(0, 1)">Hire 1x</button>
+            <button class="btn" onclick="buyResumes(0, 5)">Hire 5x</button>
+            <button class="btn btn-wood" onclick="buyResumes(0, 10)">Hire 10x</button>
+          </div>
+        </div>
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; color:var(--status-blue); font-weight:bold; margin-bottom:6px;">APPRAISERS [T3-T6] ($50K / Hire)</div>
+          <div class="pack-row">
+            <button class="btn" style="border-color:var(--status-blue); color:var(--status-blue);" onclick="buyResumes(1, 1)">Hire 1x</button>
+            <button class="btn" style="border-color:var(--status-blue); color:var(--status-blue);" onclick="buyResumes(1, 5)">Hire 5x</button>
+            <button class="btn btn-wood" onclick="buyResumes(1, 10)">Hire 10x</button>
+          </div>
+        </div>
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; color:var(--status-purple); font-weight:bold; margin-bottom:6px;">GALLERISTS [T5-T8] ($250K / Hire)</div>
+          <div class="pack-row">
+            <button class="btn btn-purple" onclick="buyResumes(2, 1)">Hire 1x</button>
+            <button class="btn btn-purple" onclick="buyResumes(2, 5)">Hire 5x</button>
+            <button class="btn btn-wood" onclick="buyResumes(2, 10)">Hire 10x</button>
+          </div>
+        </div>
+        <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px;">
+          <div style="font-size:10px; color:var(--status-amber); font-weight:bold; margin-bottom:6px;">MASTER BROKERS [T7-T10] ($1.0M / Hire)</div>
+          <div class="pack-row">
+            <button class="btn" style="border-color:var(--status-amber); color:var(--status-amber);" onclick="buyResumes(3, 1)">Hire 1x</button>
+            <button class="btn" style="border-color:var(--status-amber); color:var(--status-amber);" onclick="buyResumes(3, 5)">Hire 5x</button>
+            <button class="btn btn-wood" onclick="buyResumes(3, 10)">Hire 10x</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>Art Supplies (Gesso, Thinner)</span>
+        <span style="font-size:11px; font-weight:bold; color:var(--wood-light);">$<span id="fuel-price">2.80</span> / UNIT</span>
+      </div>
+      <div class="fraction-row">
+        <button class="btn" onclick="buyFuelFixed(50000)">50K Units</button>
+        <button class="btn" onclick="buyFuelFixed(250000)">250K Units</button>
+        <button class="btn" onclick="buyFuelFixed(1000000)">1M Units</button>
+        <button class="btn btn-wood" onclick="buyFuelFixed('MAX')">Max Fill</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: INVENTORY (STASH) -->
+  <div id="tab-fleet" class="view-tab">
+    <div class="panel">
+      <div class="panel-header">
+        <span>The Studio</span>
+        <div style="display:flex; gap:4px;">
+          <button class="btn btn-wood" onclick="autoAssignPilots()">Auto-Assign</button>
+          <button class="btn btn-wood" onclick="autoAssignRoutes()">Auto-Target</button>
+          <button class="btn btn-wood" onclick="dispatchAll()">Exhibit All</button>
+          <button class="btn" onclick="maintainAll()">Restore All</button>
+        </div>
+      </div>
+      
+      <div class="control-bar">
+        <div class="control-group">
+          <span class="control-label">Sort:</span>
+          <button class="btn" style="padding:4px 6px; font-size:8px;" onclick="sortHangar('val')">VAL</button>
+          <button class="btn" style="padding:4px 6px; font-size:8px;" onclick="sortHangar('tier')">TIER</button>
+          <button class="btn" style="padding:4px 6px; font-size:8px;" onclick="sortHangar('range')">PREST</button>
+        </div>
+        <div class="control-group">
+          <span class="control-label">Style:</span>
+          <select id="fleet-role-filter" onchange="filterHangarRole(this.value)" style="padding:3px; font-size:9px; width:auto;">
+            <option value="ALL">All Styles</option>
+            <option value="MOUNTAINSCAPE">Mountains</option>
+            <option value="WATERSCAPE">Waterscapes</option>
+            <option value="FORESTSCAPE">Forests</option>
+            <option value="WINTERSCAPE">Winter</option>
+            <option value="CABINSCAPE">Cabins</option>
+            <option value="SEASCAPE">Seascapes</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <span class="control-label">Tier:</span>
+          <select id="fleet-tier-filter" onchange="filterHangarTier(this.value)" style="padding:3px; font-size:9px; width:auto;">
+            <option value="ALL">All Tiers</option>
+            <option value="0">T1</option><option value="1">T2</option><option value="2">T3</option><option value="3">T4</option><option value="4">T5</option>
+            <option value="5">T6</option><option value="6">T7</option><option value="7">T8</option><option value="8">T9</option><option value="9">T10</option>
+          </select>
+        </div>
+        <button class="btn btn-wood" style="padding:4px 6px; font-size:8px;" onclick="importStrain()">Import Base36</button>
+      </div>
+
+      <div class="fraction-row">
+        <button class="btn btn-danger" onclick="quickSellStrains(0)">Donate T1</button>
+        <button class="btn btn-danger" onclick="quickSellStrains(1)">Donate T2&lt;</button>
+        <button class="btn btn-danger" onclick="quickSellStrains(2)">Donate T3&lt;</button>
+        <button class="btn btn-danger" onclick="quickSellStrains(3)">Donate T4&lt;</button>
+      </div>
+
+      <div id="fleet-list" class="fleet-grid"></div>
+    </div>
+  </div>
+  
+  <!-- TAB: GALLERY -->
+  <div id="tab-gallery" class="view-tab">
+    <div class="panel">
+      <div class="panel-header"><span>The Grand Exhibition 🖼️</span></div>
+      <p style="font-size:10px; color:var(--silver-dim);">Lock your rarest Bob Ross masterworks to preserve them forever.</p>
+      <div id="gallery-grid" class="fleet-grid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: COURIERS -->
+  <div id="tab-pilots" class="view-tab">
+    <div class="panel">
+      <div class="panel-header"><span>Dealer Network</span></div>
+      
+      <div class="control-bar">
+        <div class="control-group">
+          <span class="control-label">Sort:</span>
+          <button class="btn" style="padding:4px 6px; font-size:8px;" onclick="sortPilots('val')">VAL</button>
+          <button class="btn" style="padding:4px 6px; font-size:8px;" onclick="sortPilots('tier')">TIER</button>
+        </div>
+        <div class="control-group">
+          <span class="control-label">Tier:</span>
+          <select id="pilot-tier-filter" onchange="filterPilotTier(this.value)" style="padding:3px; font-size:9px; width:auto;">
+            <option value="ALL">All Tiers</option>
+            <option value="0">T1</option><option value="1">T2</option><option value="2">T3</option><option value="3">T4</option><option value="4">T5</option>
+            <option value="5">T6</option><option value="6">T7</option><option value="7">T8</option><option value="8">T9</option><option value="9">T10</option>
+          </select>
+        </div>
+        <button class="btn btn-wood" style="padding:4px 6px; font-size:8px;" onclick="importCourier()">Import Base36</button>
+      </div>
+
+      <div class="fraction-row">
+        <button class="btn btn-danger" onclick="quickSellPilots(0)">Fire T1</button>
+        <button class="btn btn-danger" onclick="quickSellPilots(1)">Fire T2&lt;</button>
+        <button class="btn btn-danger" onclick="quickSellPilots(2)">Fire T3&lt;</button>
+        <button class="btn btn-danger" onclick="quickSellPilots(3)">Fire T4&lt;</button>
+      </div>
+
+      <div id="pilots-grid" class="fleet-grid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: DELIVERY ZONES -->
+  <div id="tab-routes" class="view-tab">
+    <div class="panel">
+      <div class="panel-header">
+        <span>Galleries & Museums (400)</span>
+        <select id="route-cat-filter" onchange="filterRouteCategory(this.value)" style="padding:3px; font-size:9px; width:auto;">
+          <option value="ALL">All Institutions</option>
+          <option value="MOUNTAINSCAPE">Mountain Demand</option>
+          <option value="WATERSCAPE">Waterscape Demand</option>
+          <option value="FORESTSCAPE">Forest Demand</option>
+          <option value="WINTERSCAPE">Winter Demand</option>
+          <option value="CABINSCAPE">Cabin Demand</option>
+          <option value="SEASCAPE">Seascape Demand</option>
+        </select>
+      </div>
+      <div id="routes-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB 6: WHOLESALE AUCTIONS -->
+  <div id="tab-auction" class="view-tab">
+    <div class="panel">
+      <div class="panel-header"><span>Sotheby's Auction Block</span><span style="color:var(--status-amber);"><span id="auction-count">0</span>/10 LANES</span></div>
+      <p style="font-size:10px; color:var(--silver-dim);">10 live bidding lanes with sniping reset and multi-million dollar bidding wars.</p>
+      
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-wood" style="flex:1; padding:8px;" onclick="fillAuctions('planes')">Auto-Fill 10 Cheapest Paintings</button>
+        <button class="btn btn-wood" style="flex:1; padding:8px;" onclick="fillAuctions('pilots')">Auto-Fill 10 Cheapest Dealers</button>
+      </div>
+
+      <div id="auction-idle" style="text-align:center; padding:16px; color:var(--silver-dim); font-size:11px;">Lanes empty. Push excess art to the auction house.</div>
+      <div id="auction-board" class="fleet-grid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 7: BURNER PHONE -->
+  <div id="tab-checklist" class="view-tab">
+    <div class="panel">
+      <div class="panel-header">Studio Automations</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div class="check-item">
+          <div><strong>Endless Exhibits:</strong> Automatically returns art to the gallery circuit.</div>
+          <button id="chk-autoloop" class="btn" onclick="toggleAutoLoop()">ENABLE</button>
+        </div>
+        <div class="check-item">
+          <div><strong>Automated Restoration:</strong> Automatically restores condition if it drops below 45%.</div>
+          <button id="chk-automro" class="btn" onclick="toggleAutoMRO()">ENABLE</button>
+        </div>
+        <div class="check-item">
+          <div><strong>Supply Runner:</strong> Buys 100K Supplies when reserves drop below 50K.</div>
+          <button id="chk-autorefuel" class="btn" onclick="toggleAutoRefuel()">ENABLE</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span>Private Commissions</span>
+        <button class="btn btn-wood" style="padding:2px 6px; font-size:8px;" onclick="refreshSideMissions()">Reject Calls</button>
+      </div>
+      <p style="font-size:10px; color:var(--silver-dim); margin-bottom:4px;">Exhibit targeted styles at designated museums to earn cash bounties and rare canvases.</p>
+      <div id="side-missions-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">Collector Milestones</div>
+      <div id="milestone-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB 8: MARKETING UPGRADES -->
+  <div id="tab-upgrades" class="view-tab">
+    <div class="panel">
+      <div class="panel-header">Management Strategy</div>
+      <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px; background:#000;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
+          <span style="font-weight:bold; color:var(--status-green);">Curation Prestige</span>
+          <span style="color:var(--silver-dim);">Lvl <span id="upg-mkt-lvl">0</span> (+<span id="upg-mkt-pct">0</span>%)</span>
+        </div>
+        <div style="font-size:9.5px; color:var(--silver-dim); margin-bottom:6px;">Permanently boosts base gallery yields by +5% per level.</div>
+        <button class="btn btn-wood" style="width:100%;" onclick="buyUpgrade('mkt')">Invest ($<span id="upg-mkt-cost">100000</span>)</button>
+      </div>
+      <div style="border:1px solid var(--panel-border); padding:8px; border-radius:3px; background:#000;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px;">
+          <span style="color:var(--status-blue); font-weight:bold;">Paint Efficiency</span>
+          <span style="color:var(--silver-dim);">Lvl <span id="upg-eng-lvl">0</span> (-<span id="upg-eng-pct">0</span>%)</span>
+        </div>
+        <div style="font-size:9.5px; color:var(--silver-dim); margin-bottom:6px;">Permanently reduces studio-wide supply consumption by 2% per level (Max 70%).</div>
+        <button class="btn" style="border-color:var(--status-blue); color:var(--status-blue); width:100%;" onclick="buyUpgrade('eng')">Invest ($<span id="upg-eng-cost">150000</span>)</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast-rack"></div>
 
 <script>
-    const levelData = [];
-    for(let i = 1; i <= 100; i++) {
-        let title = "Fingerpainter";
-        if(i > 10) title = "Apprentice";
-        if(i > 20) title = "Amateur Artist";
-        if(i > 30) title = "Local Talent";
-        if(i > 40) title = "Gallery Exhibitor";
-        if(i > 50) title = "Recognized Painter";
-        if(i > 60) title = "Critically Acclaimed";
-        if(i > 70) title = "Visionary";
-        if(i > 80) title = "Modern Master";
-        if(i > 90) title = "Historical Icon";
-        if(i === 100) title = "Grandmaster";
+  /* ================= 9,600 PAINTING COMBINATIONS ================= */
+  const ART_PREFIXES = ["Happy", "Little", "Majestic", "Quiet", "Peaceful", "Mist-Covered", "Hidden", "Almighty", "Gentle", "Lonely"];
+  const ART_ORIGINS = ["Thrift Store", "Estate Sale", "Attic", "Gallery", "Private Collection", "Museum", "PBS Archive", "Bob's Studio"];
+  const ART_SUBJECTS = ["Mountain", "Waterfall", "Pine Tree", "Meadow", "Cabin", "Lake", "River", "Valley", "Winterscape", "Seascape", "Stream", "Glacier", "Foothills", "Creek", "Ridge", "Summit", "Cove", "Bay", "Pond", "Grove"];
+  const ART_STYLES = ["MOUNTAINSCAPE", "WATERSCAPE", "FORESTSCAPE", "WINTERSCAPE", "CABINSCAPE", "SEASCAPE"];
 
-        levelData.push({
-            lvl: i,
-            title: title,
-            minQ: Math.floor(10 + (i * 25)), 
-            maxQ: Math.floor(200 + (i * 85)),
-            minPrice: 5 * i * i,
-            maxPrice: 20 * i * i,
-            expNeeded: Math.floor(100 * Math.pow(1.18, i - 1))
+  const P_FIRST = ["Bill", "Steve", "Gary", "Dana", "Nic", "Sarah", "Michael", "Elena", "David", "Maria", "Robert", "Anna", "William", "Emma", "Richard", "Olivia", "Thomas", "Sophia", "Charles", "Mia"];
+  const P_LAST = ["Alexander", "Ross", "Kowalski", "Jester", "Hankins", "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson"];
+  const P_CALL = ["'The Eye'", "'Brush'", "'Canvas'", "'Easel'", "'Palette'", "'Gesso'", "'Thinner'", "'Ochre'"];
+  const B_TYPES = ["VALUE","SPEED","SUPPLIES","CARE"]; 
+
+  const TIERS = [
+    { tier: 1, name: "Tier I: Thrift Store Find", color: "var(--t0-col)", baseVal: 50000 },
+    { tier: 2, name: "Tier II: Amateur Canvas", color: "var(--t1-col)", baseVal: 150000 },
+    { tier: 3, name: "Tier III: Student Piece", color: "var(--t2-col)", baseVal: 500000 },
+    { tier: 4, name: "Tier IV: Gallery Standard", color: "var(--t3-col)", baseVal: 1500000 },
+    { tier: 5, name: "Tier V: Professional", color: "var(--t4-col)", baseVal: 5000000 },
+    { tier: 6, name: "Tier VI: Master Class", color: "var(--t5-col)", baseVal: 15000000 },
+    { tier: 7, name: "Tier VII: PBS Featured", color: "var(--t6-col)", baseVal: 40000000 },
+    { tier: 8, name: "Tier VIII: Museum Quality", color: "var(--t7-col)", baseVal: 100000000 },
+    { tier: 9, name: "Tier IX: National Treasure", color: "var(--t8-col)", baseVal: 250000000 },
+    { tier: 10, name: "Tier X: Joy of Painting Original", color: "var(--t9-col)", baseVal: 500000000 }
+  ];
+
+  const ZONE_CAT = {
+    MOUNTAINSCAPE: ["Alpine Café","Rockies Visitor Center","Everest Lounge","Himalayan Exhibit"],
+    WATERSCAPE: ["Marina Bistro","Riverside Inn","Aquarium Foyer","Maritime Museum"],
+    FORESTSCAPE: ["Lumberjack Tavern","National Park Center","Botanical Garden","Arboretum Gallery"],
+    WINTERSCAPE: ["Ski Lodge","Ice Hotel","Nordic Embassy","Winter Palace"],
+    CABINSCAPE: ["Cozy Bed & Breakfast","Heritage Homestead","Pioneer Museum","Log Cabin Retreat"],
+    SEASCAPE: ["Beachside Resort","Yacht Club","Coastal Gallery","Oceanographic Institute"]
+  };
+
+  const MILESTONES = [
+    { id: "m1", title: "First Exhibit", desc: "Send a painting on tour.", reward: 250000, req: s => s.fleet.some(p => p.status === 'IN_FLIGHT' || p.expRev > 0) },
+    { id: "m2", title: "Growing Studio", desc: "Hold 5 or more paintings.", reward: 1000000, req: s => s.fleet.length >= 5 },
+    { id: "m3", title: "Dealer Network", desc: "Hire 5 or more dealers.", reward: 750000, req: s => s.pilots.length >= 5 },
+    { id: "m4", title: "International Tour", desc: "Unlock a gallery > 3,000 Miles.", reward: 2000000, req: s => s.routes.some(r => r.unlocked && r.dist >= 3000) },
+    { id: "m5", title: "Cabin in the Woods", desc: "Acquire a Cabinscape painting.", reward: 3000000, req: s => s.fleet.some(p => p.role === 'CABINSCAPE') },
+    { id: "m6", title: "Professional Portfolio", desc: "Acquire a Tier V or higher painting.", reward: 8000000, req: s => s.fleet.some(p => p.tierIndex >= 4) },
+    { id: "m7", title: "High-End Broker", desc: "Hire a Tier V or higher dealer.", reward: 4000000, req: s => s.pilots.some(p => p.tierIndex >= 4) },
+    { id: "m8", title: "Stockpiled Paint", desc: "Accumulate over 500,000 Units of Supplies.", reward: 2500000, req: s => s.fuelReserve >= 500000 },
+    { id: "m9", title: "Master Collector", desc: "Amass over $100,000,000.", reward: 20000000, req: s => s.funds >= 100000000 },
+    { id: "m10", title: "The Louvre", desc: "Expand studio to 10 active paintings.", reward: 5000000, req: s => s.fleet.length >= 10 },
+    { id: "m11", title: "Going Once...", desc: "Sell a painting at Sotheby's.", reward: 1500000, req: s => s.statAuctionsSold > 0 },
+    { id: "m12", title: "Charity Donation", desc: "Donate (dispose) of a painting.", reward: 1000000, req: s => s.statPlanesScrapped > 0 },
+    { id: "m13", title: "Global Exhibition", desc: "Unlock a gallery > 6,500 Miles.", reward: 6000000, req: s => s.routes.some(r => r.unlocked && r.dist >= 6500) },
+    { id: "m14", title: "Sotheby's Elite", desc: "Employ 3 or more Tier VII+ Master Brokers.", reward: 15000000, req: s => s.pilots.filter(p => p.tierIndex >= 6).length >= 3 },
+    { id: "m15", title: "Happy Accidents", desc: "Acquire a Tier X Joy of Painting Original.", reward: 50000000, req: s => s.fleet.some(p => p.tierIndex === 9) }
+  ];
+
+  const $ = id => document.getElementById(id);
+
+  /* ================= 64x64 PROCEDURAL BOB ROSS PIXEL ART ================= */
+  const offscreenCanvas = document.createElement('canvas');
+  offscreenCanvas.width = 64; offscreenCanvas.height = 64;
+  const offscreenCtx = offscreenCanvas.getContext('2d');
+
+  function Mulberry32(a) {
+    return function() {
+      var t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+
+  function generatePaintingImage(seedInt, style, tierIdx) {
+    offscreenCtx.clearRect(0, 0, 64, 64);
+    const rng = Mulberry32(seedInt);
+    
+    // 1. Frame (Dark Wood)
+    offscreenCtx.fillStyle = '#3a2311';
+    offscreenCtx.fillRect(0, 0, 64, 64);
+    offscreenCtx.fillStyle = '#5c3a21'; // inner light lip
+    offscreenCtx.fillRect(2, 2, 60, 60);
+
+    // Canvas boundary 3 to 60
+    offscreenCtx.save();
+    offscreenCtx.beginPath();
+    offscreenCtx.rect(3, 3, 58, 58);
+    offscreenCtx.clip();
+
+    // Palettes based on style
+    let skyCol = '#87CEEB', groundCol = '#2d4c1e', waterCol = '#0f4c81', mountCol = '#555', snowCol = '#fff';
+    if(style === 'WINTERSCAPE') { skyCol = '#a1aeb1'; groundCol = '#e0e6ed'; waterCol = '#465d6b'; mountCol = '#6b7a8f'; }
+    if(style === 'SEASCAPE') { skyCol = '#ff7b54'; groundCol = '#d2a679'; waterCol = '#1a5f7a'; }
+    if(style === 'CABINSCAPE') { skyCol = '#ffb347'; groundCol = '#3a5024'; }
+
+    // Sky
+    offscreenCtx.fillStyle = skyCol;
+    offscreenCtx.fillRect(3, 3, 58, 58);
+
+    // Sun / Moon
+    if(style === 'SEASCAPE' || style === 'CABINSCAPE') {
+        offscreenCtx.fillStyle = '#ffed4a';
+        offscreenCtx.beginPath();
+        offscreenCtx.arc(15 + rng()*34, 15 + rng()*10, 5 + rng()*3, 0, Math.PI*2);
+        offscreenCtx.fill();
+    }
+
+    // Helper: Draw Polygon
+    function drawPoly(pts, fill) {
+        offscreenCtx.fillStyle = fill;
+        offscreenCtx.beginPath();
+        offscreenCtx.moveTo(pts[0][0], pts[0][1]);
+        for(let i=1; i<pts.length; i++) offscreenCtx.lineTo(pts[i][0], pts[i][1]);
+        offscreenCtx.fill();
+    }
+
+    // Mountains
+    if(style === 'MOUNTAINSCAPE' || style === 'WINTERSCAPE' || style === 'WATERSCAPE' || style === 'FORESTSCAPE') {
+        let numPeaks = 2 + Math.floor(rng()*3);
+        for(let i=0; i<numPeaks; i++) {
+            let px = 10 + i*15 + (rng()-0.5)*10;
+            let py = 15 + rng()*15;
+            let pw = 15 + rng()*10;
+            
+            // Base Mountain
+            drawPoly([[px, py], [px-pw, 45], [px+pw, 45]], mountCol);
+            // Snowcap (Titanium White)
+            let sw = pw * 0.4;
+            let sy = py + (45-py)*0.4;
+            drawPoly([[px, py], [px-sw, sy], [px+sw, sy]], snowCol);
+            
+            // Shadow side
+            offscreenCtx.fillStyle = 'rgba(0,0,0,0.2)';
+            offscreenCtx.beginPath();
+            offscreenCtx.moveTo(px, py);
+            offscreenCtx.lineTo(px, 45);
+            offscreenCtx.lineTo(px+pw, 45);
+            offscreenCtx.fill();
+        }
+    }
+
+    // Ground / Midground
+    offscreenCtx.fillStyle = groundCol;
+    offscreenCtx.fillRect(3, 35 + rng()*10, 58, 30);
+
+    // Water
+    if(style === 'WATERSCAPE' || style === 'SEASCAPE') {
+        offscreenCtx.fillStyle = waterCol;
+        let wy = style === 'SEASCAPE' ? 40 : 50;
+        offscreenCtx.fillRect(3, wy, 58, 61-wy);
+        
+        // Waterlines / reflections
+        offscreenCtx.fillStyle = 'rgba(255,255,255,0.4)';
+        for(let i=0; i<5; i++) {
+            offscreenCtx.fillRect(10 + rng()*30, wy + 2 + i*3, 5 + rng()*15, 1);
+        }
+    }
+
+    // Trees (Happy Little Trees)
+    let treeCount = (style === 'FORESTSCAPE') ? 15 + rng()*10 : 3 + rng()*5;
+    if(style === 'SEASCAPE') treeCount = 0;
+    
+    for(let i=0; i<treeCount; i++) {
+        let tx = 5 + rng()*50;
+        let ty = 35 + rng()*20;
+        let th = 10 + rng()*15;
+        let tw = 4 + rng()*4;
+        
+        // Trunk
+        offscreenCtx.fillStyle = '#3a2311';
+        offscreenCtx.fillRect(tx-1, ty-th, 2, th);
+        
+        // Leaves
+        let leafCol = (style === 'WINTERSCAPE') ? '#dcdcdc' : ((rng()>0.5)?'#2d4c1e':'#1f3614');
+        for(let j=0; j<3; j++) {
+            let ly = ty - th + j*(th/3);
+            let lw = tw * (j+1);
+            drawPoly([[tx, ly-tw], [tx-lw, ly+tw], [tx+lw, ly+tw]], leafCol);
+        }
+    }
+
+    // Cabin
+    if(style === 'CABINSCAPE' || (rng() > 0.8 && style !== 'SEASCAPE')) {
+        let cx = 15 + rng()*30;
+        let cy = 45 + rng()*5;
+        
+        // Walls Van Dyke Brown
+        offscreenCtx.fillStyle = '#4a3018';
+        offscreenCtx.fillRect(cx, cy, 12, 8);
+        
+        // Roof Dark Sienna / Snow
+        offscreenCtx.fillStyle = (style==='WINTERSCAPE') ? '#fff' : '#2b1a0d';
+        drawPoly([[cx-2, cy], [cx+6, cy-5], [cx+14, cy]], (style==='WINTERSCAPE') ? '#fff' : '#2b1a0d');
+        
+        // Door & Window
+        offscreenCtx.fillStyle = '#111';
+        offscreenCtx.fillRect(cx+2, cy+3, 3, 5);
+        offscreenCtx.fillStyle = '#ffed4a'; // Warm light
+        offscreenCtx.fillRect(cx+7, cy+2, 3, 3);
+    }
+
+    // Bob's Signature (Bottom Right or Left)
+    if(tierIdx >= 6) {
+        let sigX = (rng() > 0.5) ? 50 : 5;
+        offscreenCtx.fillStyle = 'var(--alizarin-crimson)';
+        if(tierIdx === 9) offscreenCtx.shadowBlur = 3; offscreenCtx.shadowColor = 'red';
+        offscreenCtx.fillRect(sigX, 58, 4, 1);
+        offscreenCtx.fillRect(sigX, 57, 1, 2);
+        offscreenCtx.fillRect(sigX+3, 57, 1, 2);
+        offscreenCtx.shadowBlur = 0;
+    }
+
+    offscreenCtx.restore(); // Remove clip
+
+    return offscreenCanvas.toDataURL('image/png');
+  }
+
+  /* ================= STATE ================= */
+  let State = {
+    funds: 50000000, 
+    fuelReserve: 250000, // Supplies
+    fuelSpotPrice: 2.85,
+    buyMode: 1, 
+    sortHangarMode: 'val',
+    filterHangarRole: 'ALL',
+    filterHangarTier: 'ALL',
+    sortPilotsMode: 'val',
+    filterPilotTier: 'ALL',
+    filterRouteCat: 'ALL',
+    fleet: [], pilots: [], routes: [], auctions: [], marketCars: [],
+    gallery: [], 
+    marketTimer: 10.0,
+    upgrades: { mkt: 0, eng: 0 },
+    automation: { autoDispatch: false, autoMRO: false, autoRefuel: false },
+    claimedMilestones: [],
+    sideMissions: [],
+    statAuctionsSold: 0,
+    statPlanesScrapped: 0
+  };
+  let globalInterval = null;
+  let needsFleetRender = false;
+
+  /* ================= UTILITY & BASE36 ================= */
+  function fmt(n) {
+    if (n >= 1e12) return (n / 1e12).toFixed(2) + "T";
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+    return Math.floor(n).toLocaleString();
+  }
+  function toast(msg) {
+    const r = $('toast-rack'); const e = document.createElement('div');
+    e.className = 'toast'; e.innerHTML = msg; r.appendChild(e);
+    setTimeout(() => e.remove(), 2800);
+  }
+  function updateHUD() {
+    if($('hud-funds')) $('hud-funds').innerText = `$${fmt(State.funds)}`;
+    if($('hud-fleet-count')) $('hud-fleet-count').innerText = State.fleet.length;
+    if($('hud-pilot-count')) $('hud-pilot-count').innerText = State.pilots.length;
+    if($('hud-fuel')) $('hud-fuel').innerText = fmt(State.fuelReserve);
+  }
+  
+  function saveGame() { 
+    let s = JSON.parse(JSON.stringify(State));
+    s.fleet.forEach(p => delete p.imgData);
+    s.marketCars.forEach(p => delete p.imgData);
+    s.gallery.forEach(g => delete g.imgData);
+    s.auctions.forEach(a => { if(a.item.imgData) delete a.item.imgData; });
+    localStorage.setItem('joyOfCollectingV1', JSON.stringify(s)); 
+    toast("Studio Progress Saved."); 
+  }
+  
+  function loadGame() {
+    let s = localStorage.getItem('joyOfCollectingV1');
+    if (s) {
+      State = JSON.parse(s);
+      if(!State.gallery) State.gallery = [];
+      if(!State.routes || State.routes.length < 400) State.routes = generateRoutes();
+      
+      State.fleet.forEach(p => p.imgData = generatePaintingImage(p.seedInt, p.role, p.tierIndex));
+      State.marketCars.forEach(p => p.imgData = generatePaintingImage(p.seedInt, p.role, p.tierIndex));
+      State.gallery.forEach(g => g.imgData = generatePaintingImage(g.seedInt, g.role, g.tierIdx));
+      State.auctions.forEach(a => { if(a.type==='plane') a.item.imgData = generatePaintingImage(a.item.seedInt, a.item.role, a.item.tierIndex); });
+
+      State.fleet.forEach(p => { p.status = 'READY'; p.flightEnd = 0; p.flightStart = 0; });
+      updateHUD(); setTab('market');
+      toast("Studio Restored.");
+    } else {
+      toast("No saved studio found.");
+    }
+  }
+
+  function setBuyMode(val) {
+      State.buyMode = val;
+      ['buy-1','buy-0.25','buy-0.5','buy-1.0'].forEach(id => { if($(id)) $(id).classList.remove('active'); });
+      let sel = val===1?'buy-1':val===0.25?'buy-0.25':val===0.5?'buy-0.5':'buy-1.0';
+      if($(sel)) $(sel).classList.add('active');
+  }
+
+  /* BASE36 FOR DEALERS */
+  function exportCourier(uid) {
+    let p = State.pilots.find(x => x.uid===uid); if(!p) return;
+    let codeInt = p.fIdx * 160 + p.lIdx * 8 + p.cIdx;
+    prompt("Copy Dealer Network Code:", "DL-" + codeInt.toString(36).toUpperCase());
+  }
+  function importCourier() {
+    let str = prompt("Enter Dealer Network Code (DL-XXX):"); if(!str) return;
+    str = str.replace('DL-', '').trim();
+    let codeInt = parseInt(str, 36); if(isNaN(codeInt) || codeInt < 0) { toast("Invalid code."); return; }
+    let cIdx = codeInt % 8; codeInt = Math.floor(codeInt / 8);
+    let lIdx = codeInt % 20; codeInt = Math.floor(codeInt / 20);
+    let fIdx = codeInt % 20;
+    let tIdx = Math.floor(Math.random() * 10);
+    let bIdx = Math.floor(Math.random() * 4);
+    State.pilots.push(hireCourier(fIdx, lIdx, cIdx, tIdx, bIdx)); 
+    updateHUD(); renderPilots(); toast("Dealer joined the firm!");
+  }
+
+  /* BASE36 FOR PAINTINGS */
+  function exportStrain(uid) {
+    let p = State.fleet.find(x => x.uid===uid); if(!p) return;
+    let codeInt = p.pIdx * 960 + p.bIdx * 120 + p.mIdx * 6 + p.rIdx;
+    prompt("Copy Artwork Authentication Code:", "BR-" + codeInt.toString(36).toUpperCase());
+  }
+  function importStrain() {
+    let str = prompt("Enter Artwork Authentication Code (BR-XXX):"); if(!str) return;
+    str = str.replace('BR-', '').trim();
+    let codeInt = parseInt(str, 36); if(isNaN(codeInt) || codeInt < 0) { toast("Invalid code."); return; }
+    let rIdx = codeInt % 6; codeInt = Math.floor(codeInt / 6);
+    let mIdx = codeInt % 20; codeInt = Math.floor(codeInt / 20);
+    let bIdx = codeInt % 8; codeInt = Math.floor(codeInt / 8);
+    let pIdx = codeInt % 10;
+    let tIdx = Math.floor(Math.random() * 10);
+    
+    let tD = TIERS[tIdx];
+    let val = Math.floor(tD.baseVal * 1.0); 
+    let cost = Math.max(50000, Math.floor(val * 0.8)); 
+    let cap = Math.floor(5 + (tIdx * 45)); // Age
+    let rnge = Math.floor(1000 + (tIdx * 900));
+    let burn = Math.floor(20 + (tIdx * 15)); // Supplies
+    let seedInt = (pIdx * 960 + bIdx * 120 + mIdx * 6 + rIdx) * 31 + tIdx;
+
+    let importedTree = {
+      uid: 'P' + Math.floor(100+Math.random()*899) + 'BR',
+      pIdx, bIdx, mIdx, rIdx, tierIndex: tIdx,
+      seedInt: seedInt,
+      imgData: generatePaintingImage(seedInt, ART_STYLES[rIdx % ART_STYLES.length], tIdx),
+      name: `${ART_PREFIXES[pIdx]} ${ART_ORIGINS[bIdx]} ${ART_SUBJECTS[mIdx]}`,
+      role: ART_STYLES[rIdx % ART_STYLES.length], tierName: tD.name, tierColor: tD.color,
+      value: val, cost: cost, capacity: cap, range: rnge, fuelBurn: burn,
+      condition: 100, status: 'READY', assignedRoute: null, assignedPilot: null
+    };
+    
+    State.fleet.push(importedTree);
+    updateHUD(); renderFleet(); toast("Painting acquired via Auth Code!");
+  }
+
+  function generateRoutes() {
+    let rts = [];
+    let roles = ART_STYLES;
+    let used = new Set();
+    let idCounter = 0;
+
+    roles.forEach(role => {
+      let pool = ZONE_CAT[role] || ZONE_CAT["MOUNTAINSCAPE"];
+      let count = role === "MOUNTAINSCAPE" || role === "WATERSCAPE" ? 80 : 60; // 400 total
+      for(let i=0; i<count; i++) {
+        let a1, a2, pair;
+        let attempts = 0;
+        do {
+          a1 = pool[Math.floor(Math.random() * pool.length)];
+          a2 = pool[Math.floor(Math.random() * pool.length)];
+          pair = `${a1}-${a2}-${role}`;
+          attempts++;
+        } while((a1 === a2 || used.has(pair)) && attempts < 50);
+        
+        used.add(pair);
+        let dist = role === 'SEASCAPE' ? Math.floor(1200 + Math.random() * 7500) : Math.floor(350 + Math.random() * 8500);
+        
+        rts.push({
+          id: "rt_" + (idCounter++),
+          name: `${a1} ↔ ${a2}`, role: role, dist: dist,
+          cost: Math.ceil((100000 + (Math.pow(dist, 1.38) * 32)) / 10000) * 10000,
+          unlocked: idCounter === 1,
+          minTier: dist > 6500 ? "Global" : dist > 4000 ? "National" : dist > 1500 ? "Regional" : "Local"
+        });
+      }
+    });
+
+    rts.sort((a,b) => a.dist - b.dist);
+    rts[0].unlocked = true;
+    return rts;
+  }
+
+  function harvestStrain(tIdx) {
+    let pIdx = Math.floor(Math.random() * ART_PREFIXES.length);
+    let bIdx = Math.floor(Math.random() * ART_ORIGINS.length);
+    let mIdx = Math.floor(Math.random() * ART_SUBJECTS.length);
+    let rIdx = Math.floor(Math.random() * ART_STYLES.length);
+    let tD = TIERS[tIdx];
+
+    let fluct = 1.0 + (Math.random() * 0.4 - 0.2); 
+    let val = Math.floor(tD.baseVal * fluct);
+    let seedInt = Math.floor(Math.random() * 9999999);
+
+    return {
+      uid: 'P' + Math.floor(100+Math.random()*899) + 'BR',
+      pIdx, bIdx, mIdx, rIdx, tierIndex: tIdx, seedInt: seedInt,
+      imgData: generatePaintingImage(seedInt, ART_STYLES[rIdx], tIdx),
+      name: `${ART_PREFIXES[pIdx]} ${ART_ORIGINS[bIdx]} ${ART_SUBJECTS[mIdx]}`,
+      role: ART_STYLES[rIdx], tierName: tD.name, tierColor: tD.color,
+      value: val, cost: Math.max(50000, Math.floor(val * 0.8)), 
+      capacity: Math.floor(5 + (tIdx * 45) * fluct), // Age
+      range: Math.floor(1000 + (tIdx * 900) * fluct), 
+      fuelBurn: Math.floor(20 + (tIdx * 15)), // Supplies
+      condition: 100, status: 'READY', assignedRoute: null, assignedPilot: null
+    };
+  }
+
+  function hireCourier(fIdx, lIdx, cIdx, tIdx, bIdx) {
+    let rawPow = [6,25,100,300,1000,2500,6000,15000,35000,66666][tIdx];
+    return {
+      uid: Date.now()+Math.random().toString(36).substring(2,8), fIdx, lIdx, cIdx, tIdx, bIdx,
+      name: `${P_FIRST[fIdx]} ${P_CALL[cIdx]} ${P_LAST[lIdx]}`,
+      tierIndex: tIdx, tierName: TIERS[tIdx].name, tierColor: TIERS[tIdx].color,
+      bType: B_TYPES[bIdx], bonus: rawPow, value: Math.floor(TIERS[tIdx].baseVal / 10),
+      locked: false, assignedTo: null
+    };
+  }
+
+  /* ================= MARKETS & HATCHERY ================= */
+  function refreshMarket() {
+    State.marketCars = [];
+    for(let i=0; i<5; i++) {
+      let r = Math.random()*100; let tI = r>99.9?9 : r>99?8 : r>95?7 : r>85?6 : r>70?5 : r>50?4 : r>30?3 : r>15?2 : r>5?1 : 0;
+      State.marketCars.push(harvestStrain(tI));
+    }
+    renderMarket();
+  }
+
+  function renderMarket() {
+    const grid = $('market-grid'); if(!grid) return; grid.innerHTML = '';
+    State.marketCars.forEach((c, idx) => {
+      let rCol = c.role === 'MOUNTAINSCAPE' ? '#a855f7' : c.role === 'WATERSCAPE' ? '#60a5fa' : c.role === 'FORESTSCAPE' ? '#4ade80' : c.role === 'WINTERSCAPE' ? '#f5f5f5' : c.role === 'CABINSCAPE' ? '#fbbf24' : '#fb923c';
+      grid.innerHTML += `
+        <div class="strain-card" style="border-color:${c.tierColor};">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:${c.tierColor}; font-weight:bold; font-size:10px;">[${c.tierName}]</span>
+            <span class="badge" style="color:${rCol}; border-color:${rCol};">${c.role}</span>
+          </div>
+          <div class="bud-art-container">
+            <img class="bud-pixel-canvas" src="${c.imgData}">
+            <div style="flex:1;">
+              <div style="font-size:12px; font-weight:900; color:#fff;">${c.name}</div>
+              <div style="font-size:9px; color:var(--silver-dim); margin-top:2px;">Style: ${c.role}</div>
+            </div>
+          </div>
+          <div class="spec-grid">
+            <div><span>AGE:</span> ${c.capacity} YRS</div>
+            <div><span>PREST:</span> ${c.range.toLocaleString()} MI</div>
+            <div><span>SUPP:</span> ${c.fuelBurn} u/exh</div>
+            <div><span>VAL:</span> $${fmt(c.value)}</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <div>
+              <div style="font-size:9px; color:var(--silver-dim);">Est Val: $${fmt(c.value)}</div>
+              <div style="font-size:12px; color:var(--status-green); font-weight:bold; font-family:monospace;">Price: $${fmt(c.cost)}</div>
+            </div>
+            <button class="btn btn-wood" onclick="buyMarketStrain(${idx})">BUY</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function buyMarketStrain(idx) {
+    let c = State.marketCars[idx]; if(!c) return;
+    if(State.funds < c.cost) { toast("Insufficient funds."); return; }
+    State.funds -= c.cost; State.fleet.push(c); State.marketCars.splice(idx, 1);
+    toast(`Added to Studio: ${c.name}`); updateHUD(); renderMarket();
+  }
+
+  function buySeeds(bIdx, count) {
+    let costs = [10000, 100000, 1000000, 5000000];
+    let c = State.buyMode === 1 ? count : Math.max(1, Math.floor(Math.floor(State.funds/costs[bIdx]) * State.buyMode));
+    let cost = costs[bIdx] * c;
+    if(State.funds < cost) { toast("Insufficient funds."); return; }
+    State.funds -= cost;
+    let tArr = bIdx===0?[0,1,2,3]:bIdx===1?[2,3,4,5]:bIdx===2?[4,5,6,7]:[6,7,8,9];
+    for(let i=0; i<c; i++) {
+      let r = Math.random()*100; let tI = r>95?tArr[3]:r>80?tArr[2]:r>50?tArr[1]:tArr[0];
+      State.fleet.push(harvestStrain(tI));
+    }
+    updateHUD(); toast(`Won ${c}x Blind Auctions.`);
+  }
+
+  function buyResumes(bIdx, count) {
+    let costs = [5000, 50000, 250000, 1000000];
+    let c = State.buyMode === 1 ? count : Math.max(1, Math.floor(Math.floor(State.funds/costs[bIdx]) * State.buyMode));
+    let cost = costs[bIdx] * c;
+    if(State.funds < cost) { toast("Insufficient funds."); return; }
+    State.funds -= cost;
+    let tArr = bIdx===0?[0,1,2,3]:bIdx===1?[2,3,4,5]:bIdx===2?[4,5,6,7]:[6,7,8,9];
+    for(let i=0; i<c; i++) {
+      let r = Math.random()*100; let tI = r>95?tArr[3]:r>80?tArr[2]:r>50?tArr[1]:tArr[0];
+      State.pilots.push(hireCourier(Math.floor(Math.random()*20), Math.floor(Math.random()*20), Math.floor(Math.random()*8), tI, Math.floor(Math.random()*4)));
+    }
+    updateHUD(); toast(`Hired ${c}x Dealers.`);
+  }
+
+  function buyFuelFixed(amount) {
+    let unit = State.fuelSpotPrice;
+    let gal = amount === 'MAX' ? Math.floor(State.funds / unit) : amount;
+    if(gal <= 0) { toast("Insufficient funds."); return; }
+    let cost = gal * unit;
+    if(State.funds < cost) { toast("Insufficient funds."); return; }
+    State.funds -= cost; State.fuelReserve += gal;
+    toast(`Bought ${fmt(gal)} Supplies.`); updateHUD();
+  }
+
+  /* ================= INVENTORY (LAIR) ================= */
+  function sortHangar(mode) { State.sortHangarMode = mode; renderFleet(); }
+  function filterHangarRole(val) { State.filterHangarRole = val; renderFleet(); }
+  function filterHangarTier(val) { State.filterHangarTier = val; renderFleet(); }
+  
+  function assignRoute(pUid, rId) { const p = State.fleet.find(x=>x.uid===pUid); if(p) p.assignedRoute = rId; }
+  function assignPilot(pUid, piUid) {
+    const p = State.fleet.find(x=>x.uid===pUid); if(!p) return;
+    if(p.assignedPilot) { let o = State.pilots.find(x=>x.uid===p.assignedPilot); if(o) o.assignedTo = null; }
+    if(piUid==="") p.assignedPilot = null; 
+    else { p.assignedPilot=piUid; let n=State.pilots.find(x=>x.uid===piUid); if(n) n.assignedTo=pUid; }
+    renderFleet();
+  }
+
+  function autoAssignPilots() {
+    let unassigned = State.fleet.filter(p => !p.assignedPilot && p.status === 'READY');
+    let freeCouriers = State.pilots.filter(p => !p.assignedTo && !p.locked).sort((a,b) => b.bonus - a.bonus);
+    if(unassigned.length === 0 || freeCouriers.length === 0) {
+      toast("No idle paintings or available dealers."); return;
+    }
+    let paired = 0;
+    unassigned.forEach(p => {
+      if(freeCouriers.length > 0) {
+        let pilot = freeCouriers.shift();
+        p.assignedPilot = pilot.uid;
+        pilot.assignedTo = p.uid;
+        paired++;
+      }
+    });
+    toast(`Assigned dealers to ${paired} paintings.`); renderFleet(); renderPilots();
+  }
+
+  function autoAssignRoutes() {
+    let unrouted = State.fleet.filter(p => !p.assignedRoute && p.status === 'READY');
+    let uRts = State.routes.filter(r => r.unlocked);
+    if(unrouted.length === 0 || uRts.length === 0) {
+      toast("No idle paintings or unlocked galleries."); return;
+    }
+    let routedCnt = 0;
+    unrouted.forEach(p => {
+      let valid = uRts.filter(r => (r.role === p.role || r.role === 'MOUNTAINSCAPE') && r.dist <= p.range);
+      if(valid.length > 0) {
+        valid.sort((a,b) => b.dist - a.dist);
+        p.assignedRoute = valid[0].id;
+        routedCnt++;
+      }
+    });
+    toast(`Auto-Assigned ${routedCnt} paintings to furthest exhibits.`);
+    renderFleet();
+  }
+
+  function renderFleet() {
+    const list = $('fleet-list'); if(!list) return; list.innerHTML = '';
+    let filtered = [...State.fleet];
+    if(State.filterHangarRole !== 'ALL') filtered = filtered.filter(p => p.role === State.filterHangarRole);
+    if(State.filterHangarTier !== 'ALL') filtered = filtered.filter(p => p.tierIndex === parseInt(State.filterHangarTier));
+    
+    if(filtered.length===0) { list.innerHTML=`<div style="text-align:center; padding:20px; color:var(--silver-dim); font-size:11px;">No paintings match current filters.</div>`; return; }
+
+    if(State.sortHangarMode==='val') filtered.sort((a,b)=>b.value-a.value);
+    if(State.sortHangarMode==='tier') filtered.sort((a,b)=>b.tierIndex-a.tierIndex);
+    if(State.sortHangarMode==='range') filtered.sort((a,b)=>b.range-a.range);
+
+    const uRts = State.routes.filter(r => r.unlocked);
+    
+    let routeOptionsCache = {};
+    ART_STYLES.forEach(role => {
+        let opts = `<option value="">-- Assign Exhibit (${role}) --</option>`;
+        uRts.filter(r => r.role === role || r.role === 'MOUNTAINSCAPE').forEach(r => {
+            opts += `<option value="${r.id}">${r.name} [${r.role}] (${r.dist} MI)</option>`;
+        });
+        routeOptionsCache[role] = opts;
+    });
+
+    let pilotOpts = `<option value="">-- Assign Dealer --</option>`;
+    State.pilots.forEach(pl => { 
+        if(!pl.assignedTo) pilotOpts += `<option value="${pl.uid}">${pl.name} [${pl.bType}: +${fmt(pl.bonus)}%]</option>`; 
+    });
+
+    filtered.forEach(p => {
+      let rCol = p.role === 'MOUNTAINSCAPE' ? '#a855f7' : p.role === 'WATERSCAPE' ? '#60a5fa' : p.role === 'FORESTSCAPE' ? '#4ade80' : p.role === 'WINTERSCAPE' ? '#f5f5f5' : p.role === 'CABINSCAPE' ? '#fbbf24' : '#fb923c';
+      
+      let pOpts = routeOptionsCache[p.role];
+      if(p.assignedRoute) pOpts = pOpts.replace(`value="${p.assignedRoute}"`, `value="${p.assignedRoute}" selected`);
+      let rtSel = `<select ${p.status==='IN_FLIGHT'?'disabled':''} onchange="assignRoute('${p.uid}', this.value)">${pOpts}</select>`;
+
+      let pPilotOpts = pilotOpts;
+      if(p.assignedPilot) {
+          let pl = State.pilots.find(x=>x.uid === p.assignedPilot);
+          if(pl) pPilotOpts += `<option value="${pl.uid}" selected>${pl.name}</option>`;
+      }
+      let piSel = `<select ${p.status==='IN_FLIGHT'?'disabled':''} onchange="assignPilot('${p.uid}', this.value)">${pPilotOpts}</select>`;
+
+      list.innerHTML += `
+        <div class="strain-card ${p.status==='IN_FLIGHT'?'in-flight':p.condition<50?'damaged':''}" style="border-color:${p.tierColor};">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="color:${p.tierColor}; font-weight:bold; font-size:10px;">[${p.tierName}]</span>
+              <span style="font-size:12px; font-weight:900; color:#fff; margin-left:3px;">${p.name}</span>
+            </div>
+            <span class="badge" style="color:${rCol}; border-color:${rCol};">${p.role}</span>
+          </div>
+          
+          <div class="bud-art-container">
+            <img class="bud-pixel-canvas" src="${p.imgData}">
+            <div style="flex:1;">
+              <div style="font-size:10px; font-weight:bold; color:var(--silver-bright);">Style: ${p.role}</div>
+              <div style="font-size:9px; color:var(--silver-dim);">Val: $${fmt(p.value)}</div>
+            </div>
+            <button class="btn btn-wood" style="padding:4px 6px; font-size:9px;" onclick="snapGalleryPic('${p.uid}')">📸 Add to Gallery</button>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size:8.5px; font-family:monospace; color:var(--silver-dim);">
+            <span>CONDITION: ${p.condition.toFixed(0)}%</span>
+            <span id="st-${p.uid}">STATUS: <strong style="color:#fff;">${p.status}</strong></span>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:3px;">${rtSel}${piSel}</div>
+          ${p.status==='IN_FLIGHT'?`<div class="flight-bar-bg"><div id="bar-${p.uid}" class="flight-bar-fill"></div></div>`:''}
+          
+          <div style="display:flex; justify-content:space-between; margin-top:3px;">
+            <div style="display:flex; gap:3px;">
+              <button class="btn btn-purple" style="padding:3px 5px; font-size:8px;" ${p.status==='IN_FLIGHT'?'disabled':''} onclick="initAuction('${p.uid}', 'plane')">Sotheby's</button>
+              <button class="btn btn-danger" style="padding:3px 5px; font-size:8px;" ${p.status==='IN_FLIGHT'?'disabled':''} onclick="consumeStrain('${p.uid}')">Donate</button>
+            </div>
+            <div style="display:flex; gap:3px;">
+              <button class="btn" style="padding:3px 6px; font-size:8px;" ${p.status==='IN_FLIGHT'?'disabled':''} onclick="maintainAirframe('${p.uid}')">Restore</button>
+              <button class="btn btn-wood" style="padding:4px 8px; font-size:8.5px;" ${p.status==='IN_FLIGHT'||!p.assignedRoute||!p.assignedPilot?'disabled':''} onclick="dispatchFlight('${p.uid}')">EXHIBIT</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function consumeStrain(uid) {
+    let i = State.fleet.findIndex(x=>x.uid===uid); if(i===-1) return;
+    let val = Math.floor(State.fleet[i].value * 0.5); State.funds+=val;
+    if(State.fleet[i].assignedPilot) { let p=State.pilots.find(x=>x.uid===State.fleet[i].assignedPilot); if(p) p.assignedTo=null; }
+    State.fleet.splice(i,1); State.statPlanesScrapped++;
+    toast(`Donated. Tax write-off yielded $${fmt(val)}.`); updateHUD(); renderFleet();
+  }
+
+  function quickSellStrains(maxT) {
+    let t = State.fleet.filter(s=>s.tierIndex<=maxT && s.status==='READY');
+    if(t.length===0){toast("No eligible paintings in tier bracket.");return;}
+    let tot=0; t.forEach(s=>{
+      tot+=Math.floor(s.value*0.5);
+      if(s.assignedPilot) { let p=State.pilots.find(x=>x.uid===s.assignedPilot); if(p) p.assignedTo=null; }
+      State.statPlanesScrapped++;
+    });
+    State.fleet = State.fleet.filter(s=>s.tierIndex>maxT || s.status!=='READY');
+    State.funds+=tot; toast(`Donated ${t.length} canvases for $${fmt(tot)} tax write-off.`); updateHUD(); renderFleet(); renderPilots();
+  }
+
+  /* ================= GALLERY (THE EXHIBITION) ================= */
+  function snapGalleryPic(uid) {
+    let p = State.fleet.find(x => x.uid === uid);
+    if(!p) return;
+    
+    State.gallery.push({
+      gid: "gal_" + Date.now() + Math.floor(Math.random()*1000),
+      seedInt: p.seedInt, mIdx: p.mIdx, bIdx: p.bIdx, role: p.role, tierIdx: p.tierIndex,
+      name: p.name, tierName: p.tierName, tierColor: p.tierColor,
+      locked: true, imgData: p.imgData
+    });
+    
+    toast(`📸 Added to The Grand Exhibition!`);
+    if($('tab-gallery').classList.contains('active')) renderGallery();
+  }
+
+  function toggleGalleryLock(gid) {
+    let g = State.gallery.find(x => x.gid === gid);
+    if(g) { g.locked = !g.locked; renderGallery(); }
+  }
+
+  function deleteGalleryPic(gid) {
+    let idx = State.gallery.findIndex(x => x.gid === gid);
+    if(idx > -1) {
+       State.gallery.splice(idx, 1);
+       toast(`Removed from The Grand Exhibition.`);
+       renderGallery();
+    }
+  }
+
+  function renderGallery() {
+    const list = $('gallery-grid'); if(!list) return; list.innerHTML = '';
+    
+    if(State.gallery.length === 0) { 
+        list.innerHTML=`<div style="text-align:center; padding:20px; color:var(--silver-dim); font-size:11px;">Your Exhibition is empty. Snap some canvases from the Studio!</div>`; 
+        return; 
+    }
+
+    State.gallery.forEach(g => {
+      let rCol = g.role === 'MOUNTAINSCAPE' ? '#a855f7' : g.role === 'WATERSCAPE' ? '#60a5fa' : g.role === 'FORESTSCAPE' ? '#4ade80' : g.role === 'WINTERSCAPE' ? '#f5f5f5' : g.role === 'CABINSCAPE' ? '#fbbf24' : '#fb923c';
+      
+      list.innerHTML += `
+        <div class="strain-card" style="border-color:${g.locked ? 'var(--status-green)' : g.tierColor};">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:${g.tierColor}; font-weight:bold; font-size:10px;">[${g.tierName}]</span>
+            <span class="badge" style="color:${rCol}; border-color:${rCol};">${g.role}</span>
+          </div>
+          <div style="display:flex; justify-content:center; padding:10px 0;">
+             <img src="${g.imgData}" style="width:96px; height:96px; image-rendering:pixelated; background:#000; border:1px solid #111; border-radius:4px; box-shadow: 3px 3px 10px rgba(0,0,0,0.8);" />
+          </div>
+          <div style="text-align:center; font-size:14px; font-weight:900; color:#fff;">${g.name}</div>
+          <div style="text-align:center; font-size:9px; color:var(--silver-dim); margin-bottom: 8px;">Masterpiece Archival Record</div>
+          <div style="display:flex; justify-content:space-between; gap: 4px;">
+            <button class="btn" style="flex:1;" onclick="toggleGalleryLock('${g.gid}')">${g.locked ? 'UNLOCK 🔓' : 'LOCK 🔒'}</button>
+            <button class="btn btn-danger" style="flex:1;" ${g.locked ? 'disabled' : ''} onclick="deleteGalleryPic('${g.gid}')">REMOVE</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  /* ================= DEALERS ROSTER ================= */
+  function sortPilots(mode) { State.sortPilotsMode = mode; renderPilots(); }
+  function filterPilotTier(val) { State.filterPilotTier = val; renderPilots(); }
+
+  function renderPilots() {
+    const grid = $('pilots-grid'); if(!grid) return; grid.innerHTML = '';
+    
+    let filtered = [...State.pilots];
+    if(State.filterPilotTier !== 'ALL') filtered = filtered.filter(p => p.tierIndex === parseInt(State.filterPilotTier));
+    if(filtered.length===0) { grid.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--silver-dim); font-size:11px;">No dealers match filter criteria.</div>`; return; }
+
+    if(State.sortPilotsMode==='val') filtered.sort((a,b)=>b.value-a.value);
+    if(State.sortPilotsMode==='tier') filtered.sort((a,b)=>b.tierIndex-a.tierIndex);
+    
+    filtered.forEach(p => {
+      grid.innerHTML += `
+        <div class="strain-card" style="border-color:${p.tierColor};">
+          <div class="stat-block" style="display:flex; justify-content:space-between;">
+            <span style="color:${p.tierColor}; font-weight:bold; font-size:9.5px;">${p.tierName}</span>
+            <span style="color:var(--status-green); font-size:9.5px;">[${p.bType}] +${fmt(p.bonus)}%</span>
+          </div>
+          <div style="font-size:12px; font-weight:900; color:#fff;">${p.name} ${p.locked?'[🔒]':''}</div>
+          <div style="font-size:9px; color:var(--silver-dim);">${p.assignedTo ? `Managing: ${p.assignedTo}` : 'Standby / Unassigned'}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="stat-block" style="font-size:10px; color:var(--silver-bright); font-weight:bold;">VAL: $${fmt(p.value)}</span>
+            <div style="display:flex; flex-wrap:wrap; gap:3px; justify-content:flex-end;">
+              <button class="btn" style="padding:3px 5px; font-size:8px;" onclick="exportCourier('${p.uid}')">Trade</button>
+              <button class="btn" style="padding:3px 5px; font-size:8px;" onclick="togglePilotLock('${p.uid}')">${p.locked?'Unlock':'Lock'}</button>
+              ${!p.assignedTo&&!p.locked?`<button class="btn btn-purple" style="padding:3px 5px; font-size:8px;" onclick="initAuction('${p.uid}', 'pilot')">Auction</button><button class="btn btn-danger" style="padding:3px 5px; font-size:8px;" onclick="sellPilot('${p.uid}')">Fire</button>`:''}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+  function togglePilotLock(uid) { let p=State.pilots.find(x=>x.uid===uid); if(p){p.locked=!p.locked; renderPilots();} }
+  function sellPilot(uid) {
+    let idx = State.pilots.findIndex(s=>s.uid===uid);
+    if(idx>-1) { let v=Math.floor(State.pilots[idx].value*0.5); State.funds+=v; State.pilots.splice(idx,1); toast(`Fired. Recovered $${fmt(v)}.`); updateHUD(); renderPilots(); renderFleet(); }
+  }
+  function quickSellPilots(maxT) {
+    let ts = State.pilots.filter(s=>s.tierIndex<=maxT && !s.assignedTo && !s.locked);
+    if(ts.length===0){toast("No eligible dealers.");return;}
+    let tot=0; ts.forEach(s=>tot+=Math.floor(s.value*0.5));
+    State.pilots = State.pilots.filter(s=>s.tierIndex>maxT || s.assignedTo || s.locked);
+    State.funds+=tot; toast(`Fired ${ts.length} dealers. Recovered $${fmt(tot)}.`); updateHUD(); renderPilots();
+  }
+
+  /* ================= ROUTES ================= */
+  function filterRouteCategory(val) { State.filterRouteCat = val; renderRoutes(); }
+
+  function renderRoutes() {
+    const list = $('routes-list'); if(!list) return; list.innerHTML = '';
+    let filtered = State.filterRouteCat === 'ALL' ? State.routes : State.routes.filter(r => r.role === State.filterRouteCat);
+
+    filtered.forEach(r => {
+      let rCol = r.role === 'MOUNTAINSCAPE' ? '#a855f7' : r.role === 'WATERSCAPE' ? '#60a5fa' : r.role === 'FORESTSCAPE' ? '#4ade80' : r.role === 'WINTERSCAPE' ? '#f5f5f5' : r.role === 'CABINSCAPE' ? '#fbbf24' : '#fb923c';
+      let yieldM = 1.0 + (State.upgrades.mkt*0.05);
+      let baseYield = r.dist * 165 * yieldM;
+      let fuelCost = ((r.dist * 0.22) * (1 - Math.min(0.7, State.upgrades.eng*0.02))) * State.fuelSpotPrice;
+      let netProfit = baseYield - fuelCost;
+
+      list.innerHTML += `
+        <div class="route-row">
+          <div style="flex:1;">
+            <div style="font-weight:900; color:#fff;">${r.name} <span class="badge" style="margin-left:4px; color:${rCol}; border-color:${rCol};">${r.role}</span></div>
+            <div style="font-size:9px; color:var(--silver-dim); font-family:monospace; margin-top:2px;">
+              ${r.dist.toLocaleString()} MILES // Area: ${r.minTier}
+            </div>
+            <div style="font-size:9px; color:var(--silver-dim); font-family:monospace; margin-top:2px;">
+              Ticket Rev: $${fmt(baseYield)} | Supply Cost: -$${fmt(fuelCost)}
+            </div>
+            <div style="font-size:10px; color:var(--status-green); font-weight:bold; font-family:monospace; margin-top:2px;">
+              Est. Net Profit: ~$${fmt(netProfit)}
+            </div>
+          </div>
+          <div>
+            ${r.unlocked?`<span style="color:var(--status-green); font-weight:bold; font-family:monospace;">CONTRACTED ✓</span>`:`<button class="btn btn-wood" onclick="unlockRoute('${r.id}')">Contract ($${fmt(r.cost)})</button>`}
+          </div>
+        </div>
+      `;
+    });
+  }
+  function unlockRoute(rId) { const r=State.routes.find(x=>x.id===rId); if(!r)return; if(State.funds<r.cost){toast("Insufficient Funds.");return;} State.funds-=r.cost; r.unlocked=true; updateHUD(); renderRoutes(); renderFleet(); }
+
+  /* ================= AUTOMATIONS & COMMISSIONS ================= */
+  function toggleAutoLoop() {
+    State.automation.autoDispatch = !State.automation.autoDispatch;
+    toast(`Endless Exhibits: ${State.automation.autoDispatch ? 'ON' : 'OFF'}`);
+    updateAutomationUI();
+  }
+  function toggleAutoMRO() {
+    State.automation.autoMRO = !State.automation.autoMRO;
+    toast(`Auto Restoration: ${State.automation.autoMRO ? 'ON' : 'OFF'}`);
+    updateAutomationUI();
+  }
+  function toggleAutoRefuel() {
+    State.automation.autoRefuel = !State.automation.autoRefuel;
+    toast(`Supply Runner: ${State.automation.autoRefuel ? 'ON' : 'OFF'}`);
+    updateAutomationUI();
+  }
+  function updateAutomationUI() {
+    if($('chk-autoloop'))$('chk-autoloop').innerText = State.automation.autoDispatch ? 'ACTIVE' : 'ENABLE';
+    if($('chk-automro'))$('chk-automro').innerText = State.automation.autoMRO ? 'ACTIVE' : 'ENABLE';
+    if($('chk-autorefuel'))$('chk-autorefuel').innerText = State.automation.autoRefuel ? 'ACTIVE' : 'ENABLE';
+    renderMilestones();
+    renderSideMissions();
+  }
+
+  function generateSideMissions() {
+    let unlocked = State.routes.filter(r => r.unlocked);
+    if(unlocked.length === 0) unlocked = State.routes; 
+    
+    State.sideMissions = [];
+    for(let i=0; i<3; i++) {
+        let rt = unlocked[Math.floor(Math.random() * unlocked.length)];
+        State.sideMissions.push({
+            id: "sm_" + Date.now() + i,
+            title: `Commission: ${rt.name}`,
+            desc: `Client requires a ${rt.role} painting exhibited at ${rt.name}.`,
+            reqRoute: rt.id, reqRole: rt.role, readyToClaim: false,
+            rewardCash: Math.floor(rt.dist * 500) + 1000000,
+            rewardTier: Math.min(9, Math.floor(rt.dist / 1000))
         });
     }
+  }
 
-    const adjectives = ["Morning", "Silent", "Crimson", "Golden", "Neon", "Shattered", "Melancholy", "Forgotten", "Eternal", "Rustic", "Vibrant", "Dark", "Lucid", "Ethereal", "Whispering", "Bleak", "Vivid", "Celestial", "Abyssal", "Radiant", "Weeping", "Fractured"];
-    const nouns = ["Dew", "Void", "Tide", "Decay", "Whisper", "Flame", "Hour", "Dreams", "Nights", "Charm", "Breeze", "Starlight", "Leap", "Path", "Echo", "Symphony", "Illusion", "Horizon", "Mirage", "Aura", "Sorrow", "Canvas"];
+  function refreshSideMissions() {
+    generateSideMissions();
+    renderSideMissions();
+    toast("Commissions refreshed.");
+  }
+
+  function renderSideMissions() {
+    const list = $('side-missions-list'); if(!list) return; list.innerHTML = '';
+    State.sideMissions.forEach((m, idx) => {
+      let isReady = m.readyToClaim;
+      let rText = `+$${fmt(m.rewardCash)} & Free T${m.rewardTier+1} Canvas`;
+      list.innerHTML += `
+        <div class="check-item ${isReady ? 'done' : ''}">
+          <div>
+            <div style="font-weight:bold; color:#fff;">${m.title}</div>
+            <div style="font-size:9.5px; color:var(--silver-dim);">${m.desc}</div>
+            <div style="font-size:9.5px; color:var(--wood-light); font-weight:bold; margin-top:2px;">Bounty: ${rText}</div>
+          </div>
+          <div>
+            <button class="btn btn-wood" ${isReady ? '' : 'disabled'} onclick="claimSideMission(${idx})">COLLECT</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function claimSideMission(idx) {
+    let m = State.sideMissions[idx];
+    if(!m || !m.readyToClaim) return;
     
-    function generatePaintingName() {
-        return `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`;
-    }
+    State.funds += m.rewardCash;
+    let bonusStrain = harvestStrain(m.rewardTier); 
+    State.fleet.push(bonusStrain);
+    toast(`Client Paid! +$${fmt(m.rewardCash)} & ${bonusStrain.name} claimed!`);
 
-    const brushes = [
-        { name: "Frayed Stick", cost: 0, bonus: 0 },
-        { name: "Cheap Synthetic", cost: 150, bonus: 50 },
-        { name: "Hobbyist Bristle", cost: 500, bonus: 120 },
-        { name: "Student Nylon", cost: 1200, bonus: 200 },
-        { name: "Stiff Boar Hair", cost: 3000, bonus: 300 },
-        { name: "Soft Camel Hair", cost: 6500, bonus: 420 },
-        { name: "Pony Hair Wash", cost: 12000, bonus: 550 },
-        { name: "Goat Hair Mop", cost: 25000, bonus: 700 },
-        { name: "Badger Blender", cost: 50000, bonus: 850 },
-        { name: "Ox Hair Flat", cost: 100000, bonus: 1000 },
-        { name: "Sable Blend", cost: 250000, bonus: 1150 },
-        { name: "Pure Red Sable", cost: 500000, bonus: 1300 },
-        { name: "Kolinsky Sable Pro", cost: 1000000, bonus: 1450 },
-        { name: "Grandmaster Kolinsky", cost: 2500000, bonus: 1600 },
-        { name: "Diamond Encrusted", cost: 5000000, bonus: 1750 },
-        { name: "Meteorite Bristle", cost: 10000000, bonus: 1900 },
-        { name: "Unicorn Hair", cost: 25000000, bonus: 2050 },
-        { name: "Angel Feather", cost: 50000000, bonus: 2200 },
-        { name: "Ancient Brush", cost: 100000000, bonus: 2350 },
-        { name: "Reality Warper", cost: 250000000, bonus: 2500 },
-        { name: "Da Vinci's Ghost", cost: 1000000000, bonus: 3000 }
-    ];
+    State.sideMissions.splice(idx, 1);
+    
+    let unlocked = State.routes.filter(r => r.unlocked);
+    if(unlocked.length === 0) unlocked = State.routes;
+    let rt = unlocked[Math.floor(Math.random() * unlocked.length)];
+    State.sideMissions.push({
+        id: "sm_" + Date.now(),
+        title: `Commission: ${rt.name}`,
+        desc: `Client requires a ${rt.role} painting exhibited at ${rt.name}.`,
+        reqRoute: rt.id, reqRole: rt.role, readyToClaim: false,
+        rewardCash: Math.floor(rt.dist * 500) + 1000000,
+        rewardTier: Math.min(9, Math.floor(rt.dist / 1000))
+    });
 
-    const easels = [
-        { name: "Floor", cost: 0, expM: 1.0, valM: 1.0 },
-        { name: "Cardboard Box", cost: 200, expM: 1.05, valM: 1.05 },
-        { name: "Wobbly Stand", cost: 600, expM: 1.1, valM: 1.1 },
-        { name: "Basic A-Frame", cost: 1500, expM: 1.15, valM: 1.2 },
-        { name: "Tabletop Easel", cost: 3500, expM: 1.2, valM: 1.3 },
-        { name: "Field Easel", cost: 8000, expM: 1.3, valM: 1.4 },
-        { name: "Sturdy H-Frame", cost: 18000, expM: 1.4, valM: 1.5 },
-        { name: "Drafting Table", cost: 35000, expM: 1.5, valM: 1.7 },
-        { name: "Studio H-Frame", cost: 70000, expM: 1.6, valM: 2.0 },
-        { name: "Mahogany Easel", cost: 150000, expM: 1.8, valM: 2.4 },
-        { name: "Electric Tilt Table", cost: 300000, expM: 2.0, valM: 2.8 },
-        { name: "Gallery Pedestal", cost: 750000, expM: 2.3, valM: 3.5 },
-        { name: "Museum Rig", cost: 1500000, expM: 2.6, valM: 4.5 },
-        { name: "Zero-G Setup", cost: 3500000, expM: 3.0, valM: 6.0 },
-        { name: "Titanium Frame", cost: 8000000, expM: 3.5, valM: 8.0 },
-        { name: "Holographic Setup", cost: 20000000, expM: 4.0, valM: 10.0 },
-        { name: "Quantum Easel", cost: 50000000, expM: 5.0, valM: 15.0 },
-        { name: "Time Chamber", cost: 150000000, expM: 6.5, valM: 25.0 },
-        { name: "Astral Anchor", cost: 500000000, expM: 8.0, valM: 40.0 },
-        { name: "Tesseract Holder", cost: 2000000000, expM: 10.0, valM: 70.0 },
-        { name: "Loom of Creation", cost: 10000000000, expM: 20.0, valM: 150.0 }
-    ];
+    updateHUD(); renderSideMissions();
+  }
 
-    const techniques = [
-        { name: "Daydreaming", cost: 1500, adds: 1 },         
-        { name: "Color Theory", cost: 7500, adds: 2 },        
-        { name: "Creative Spark", cost: 35000, adds: 4 },     
-        { name: "Flow State", cost: 150000, adds: 8 },        
-        { name: "Muse's Whisper", cost: 750000, adds: 16 },   
-        { name: "Savant Syndrome", cost: 3500000, adds: 32 }, 
-        { name: "Lucid Dreaming", cost: 15000000, adds: 36 }, 
-        { name: "Divine Geometry", cost: 80000000, adds: 60 }, 
-        { name: "Eldritch Insight", cost: 500000000, adds: 90 }, 
-        { name: "Third Eye Opened", cost: 3000000000, adds: 150 } 
-    ];
-
-    const sizeMods = [
-        { cost: 0, mult: 0.5 },
-        { cost: 25, mult: 1.0 },
-        { cost: 150, mult: 2.5 },
-        { cost: 1500, mult: 5.0 }
-    ];
-
-    const styleMods = [
-        { cost: 0, mult: 1.0 },
-        { cost: 50, mult: 1.5 },
-        { cost: 200, mult: 2.5 },
-        { cost: 800, mult: 4.0 },
-        { cost: 3000, mult: 7.0 }
-    ];
-
-    let player = {
-        level: 1,
-        exp: 0,
-        cash: 10,
-        brushIdx: 0,
-        easelIdx: 0,
-        techIdx: 0,
-        perfectBase: 1,
-        isBobRoss: false
-    };
-
-    let museumGallery = [];
-
-    function activateGodMode() {
-        if (player.isBobRoss) return; 
-        player.isBobRoss = true;
-        player.level = 100;
-        player.exp = 0;
-        player.cash += 1000000000000; 
-        player.brushIdx = brushes.length - 1; 
-        player.easelIdx = easels.length - 1; 
-        player.perfectBase = 1600; 
-        
-        logAction(`<div style="text-align:center; padding: 5px;">
-                    <strong style="color: var(--success); font-size: 1.2em;">Happy Little Trees</strong><br>
-                    <em style="color: white; font-size: 0.9em;">God Mode Activated. No mistakes, just happy accidents.</em>
-                   </div>`, "log-perfect");
-        updateUI();
-    }
-
-    function getPaintCost() {
-        let sizeVal = document.getElementById("size-select").value;
-        let styleVal = document.getElementById("style-select").value;
-        return sizeMods[sizeVal].cost + styleMods[styleVal].cost;
-    }
-
-    function updateCostUI() {
-        let cost = getPaintCost();
-        document.getElementById("paint-cost-display").innerText = cost === 0 ? "FREE" : "$" + cost.toLocaleString();
-    }
-
-    function paint() {
-        let cost = getPaintCost();
-        let errorMsg = document.getElementById("error-msg");
-        
-        if (player.cash < cost) {
-            errorMsg.innerText = "Not enough cash!";
-            return;
-        }
-        
-        errorMsg.innerText = "";
-        player.cash -= cost;
-
-        let currentLvlData = levelData[player.level - 1];
-        let currentBrush = brushes[player.brushIdx];
-        let currentEasel = easels[player.easelIdx];
-        let sizeMod = sizeMods[document.getElementById("size-select").value];
-        let styleMod = styleMods[document.getElementById("style-select").value];
-
-        let finalQuality;
-        let isPerfect = false;
-
-        let perfectRoll = Math.floor(Math.random() * 1600) + 1;
-        if (perfectRoll <= player.perfectBase || player.isBobRoss) {
-            isPerfect = true;
-            finalQuality = 10000;
-        } else {
-            let rawQuality = Math.floor(Math.random() * (currentLvlData.maxQ - currentLvlData.minQ + 1)) + currentLvlData.minQ;
-            finalQuality = rawQuality + currentBrush.bonus;
-            if (finalQuality >= 10000) {
-                finalQuality = 10000;
-                isPerfect = true;
+  function renderMilestones() {
+    const list = $('milestone-list'); if(!list) return; list.innerHTML = '';
+    MILESTONES.forEach(m => {
+      let isClaimed = State.claimedMilestones.includes(m.id);
+      let canClaim = !isClaimed && m.req(State);
+      list.innerHTML += `
+        <div class="check-item ${isClaimed ? 'done' : ''}">
+          <div>
+            <div style="font-weight:bold; color:${isClaimed ? 'var(--status-green)' : '#fff'};">${isClaimed ? '✓ ' : ''}${m.title}</div>
+            <div style="font-size:9.5px; color:var(--silver-dim);">${m.desc}</div>
+            <div style="font-size:9.5px; color:var(--status-amber); font-weight:bold; margin-top:1px;">Reward: +$${fmt(m.reward)}</div>
+          </div>
+          <div>
+            ${isClaimed 
+              ? `<span style="color:var(--status-green); font-weight:bold; font-size:9px;">CLAIMED</span>` 
+              : `<button class="btn btn-wood" ${canClaim ? '' : 'disabled'} onclick="claimMilestone('${m.id}')">CLAIM</button>`
             }
-        }
+          </div>
+        </div>
+      `;
+    });
+  }
 
-        let cashMult = 0, baseExp = 0, gradeName = "", cssClass = "";
+  function claimMilestone(mId) {
+    let m = MILESTONES.find(x => x.id === mId);
+    if(!m || State.claimedMilestones.includes(mId) || !m.req(State)) return;
+    State.claimedMilestones.push(mId);
+    State.funds += m.reward;
+    toast(`Milestone Achieved: +$${fmt(m.reward)}`);
+    updateHUD(); renderMilestones();
+  }
+
+  /* ================= UPGRADES ================= */
+  function getUpgCost(type, lvl) { return type==='mkt' ? Math.floor(100000*Math.pow(1.5,lvl)) : Math.floor(150000*Math.pow(1.6,lvl)); }
+  function renderUpgrades() {
+    let mC = getUpgCost('mkt', State.upgrades.mkt); let eC = getUpgCost('eng', State.upgrades.eng);
+    if($('upg-mkt-lvl'))$('upg-mkt-lvl').innerText=State.upgrades.mkt; 
+    if($('upg-mkt-pct'))$('upg-mkt-pct').innerText=State.upgrades.mkt*5; 
+    if($('upg-mkt-cost'))$('upg-mkt-cost').innerText=fmt(mC);
+    
+    if($('upg-eng-lvl'))$('upg-eng-lvl').innerText=State.upgrades.eng; 
+    if($('upg-eng-pct'))$('upg-eng-pct').innerText=Math.min(70, State.upgrades.eng*2); 
+    if($('upg-eng-cost'))$('upg-eng-cost').innerText=fmt(eC);
+  }
+  function buyUpgrade(type) {
+    let cost = getUpgCost(type, State.upgrades[type]);
+    if(State.funds < cost) { toast("Insufficient Funds."); return; }
+    State.funds -= cost; State.upgrades[type]++;
+    updateHUD(); renderUpgrades(); toast("Studio capability expanded.");
+  }
+
+  /* ================= EXPEDITION DISPATCH ================= */
+  function dispatchFlight(pUid) {
+    const p = State.fleet.find(x=>x.uid===pUid); if(!p||p.status==='IN_FLIGHT'||!p.assignedRoute||!p.assignedPilot)return;
+    const r = State.routes.find(x=>x.id===p.assignedRoute); const pl = State.pilots.find(x=>x.uid===p.assignedPilot); if(!r||!pl)return;
+    
+    if(p.condition < 45) {
+      if(State.automation.autoMRO && State.funds >= Math.floor((100-p.condition)*2500)) {
+        maintainAirframe(p.uid);
+      } else {
+        toast("[FADED] Condition critical. Must Restore."); return;
+      }
+    }
+
+    let yieldM = 1.0 + (State.upgrades.mkt*0.05); let speedD = 1.0; let fuelD = 1.0; let safeD = 1.0;
+    if(pl.bType==='VALUE') yieldM *= (1 + pl.bonus/100);
+    if(pl.bType==='SPEED') speedD = 1 + pl.bonus/100; 
+    if(pl.bType==='SUPPLIES') fuelD = 1 + pl.bonus/100;
+    if(pl.bType==='CARE') safeD = 1 + pl.bonus/100;
+
+    let baseMs = Math.max(5000, Math.min(90000, (r.dist/8000)*90000));
+    let msTime = Math.max(1000, baseMs / speedD); 
+
+    let fBurn = Math.floor((r.dist * 0.22) * (1 - Math.min(0.7, State.upgrades.eng*0.02)) / fuelD);
+    
+    if(State.fuelReserve < fBurn) {
+      if(State.automation.autoRefuel && State.funds >= 100000 * State.fuelSpotPrice) {
+        State.funds -= 100000 * State.fuelSpotPrice;
+        State.fuelReserve += 100000;
+      } else {
+        toast("Insufficient Supplies."); return;
+      }
+    }
+    State.fuelReserve -= fBurn;
+
+    let bRev = r.dist * 165 * yieldM;
+    
+    p.status='IN_FLIGHT'; p.flightStart=Date.now(); p.flightDuration=msTime; p.flightEnd=p.flightStart+msTime; p.expRev=bRev; p.wear=10/safeD;
+    
+    State.sideMissions.forEach(m => {
+        if(!m.readyToClaim && p.assignedRoute === m.reqRoute && p.role === m.reqRole) {
+            m.readyToClaim = true;
+            toast(`Commission Complete: ${m.title}`);
+            if($('tab-checklist').classList.contains('active')) renderSideMissions();
+        }
+    });
+
+    needsFleetRender = true; updateHUD();
+  }
+  function dispatchAll() { State.fleet.filter(p=>p.status==='READY'&&p.assignedRoute&&p.assignedPilot).forEach(p=>dispatchFlight(p.uid)); }
+  function maintainAirframe(pUid) { const p=State.fleet.find(x=>x.uid===pUid); if(!p||p.status==='IN_FLIGHT')return; let c=Math.floor((100-p.condition)*2500); if(State.funds<c)return; State.funds-=c; p.condition=100; updateHUD(); needsFleetRender = true; }
+  function maintainAll() { let c=0; State.fleet.filter(p=>p.condition<90&&p.status!=='IN_FLIGHT').forEach(p=>c+=Math.floor((100-p.condition)*2500)); if(c===0||State.funds<c)return; State.funds-=c; State.fleet.forEach(p=>p.condition=100); updateHUD(); renderFleet(); }
+
+  /* ================= 10-LANE WHOLESALE AUCTIONS ================= */
+  function initAuction(uid, type) {
+    if(State.auctions.length>=10){toast("Sotheby's full.");return;}
+    let item;
+    if(type==='plane') { let i=State.fleet.findIndex(x=>x.uid===uid); if(i===-1)return; item=State.fleet[i]; if(item.assignedPilot){ let px=State.pilots.find(x=>x.uid===item.assignedPilot); if(px)px.assignedTo=null; } State.fleet.splice(i,1); }
+    if(type==='pilot') { let i=State.pilots.findIndex(x=>x.uid===uid); if(i===-1)return; item=State.pilots[i]; State.pilots.splice(i,1); }
+    
+    State.auctions.push({ item:item, type:type, baseVal:item.value, timer:20.0, currentBid:Math.floor(item.value*0.9), log:[] });
+    updateHUD(); renderAuctions(); renderFleet(); renderPilots(); toast("Moved to Sotheby's.");
+  }
+  
+  function fillAuctions(type) {
+    let a=10-State.auctions.length; if(a<=0) { toast("Sotheby's full."); return; }
+    
+    let c = type==='planes' 
+      ? State.fleet.filter(p=>p.status==='READY'&&!p.assignedPilot).sort((x,y)=>x.value-y.value) 
+      : State.pilots.filter(p=>!p.assignedTo&&!p.locked).sort((x,y)=>x.value-y.value);
         
-        if (isPerfect || finalQuality === 10000) {
-            cashMult = 100000.0; baseExp = 100000; gradeName = "Perfect Masterpiece"; cssClass = "log-perfect";
-        } else if (finalQuality <= 2000) {
-            cashMult = 0.5; baseExp = 10; gradeName = "Trash"; cssClass = "log-trash";
-        } else if (finalQuality <= 4000) {
-            cashMult = 1.0; baseExp = 30; gradeName = "Amateur";
-        } else if (finalQuality <= 6000) {
-            cashMult = 1.5; baseExp = 75; gradeName = "Decor";
-        } else if (finalQuality <= 8000) {
-            cashMult = 3.0; baseExp = 250; gradeName = "Gallery Quality";
-        } else if (finalQuality < 9000) {
-            cashMult = 10.0; baseExp = 1000; gradeName = "Brilliant"; cssClass = "log-brilliant";
-        } else {
-            cashMult = 50000.0; baseExp = 25000; gradeName = "Modern Mona Lisa"; cssClass = "log-masterpiece";
-        }
+    if(c.length===0){toast("No eligible canvases/dealers available.");return;}
+    
+    let loaded = 0;
+    c.slice(0,a).forEach(item=>{ 
+      if(type==='planes'){ let i=State.fleet.findIndex(x=>x.uid===item.uid); State.fleet.splice(i,1); }
+      if(type==='pilots'){ let i=State.pilots.findIndex(x=>x.uid===item.uid); State.pilots.splice(i,1); }
+      State.auctions.push({item:item, type:type, baseVal:item.value, timer:20.0, currentBid:Math.floor(item.value*0.9), log:[]}); 
+      loaded++;
+    });
+    
+    updateHUD(); renderPilots(); renderFleet(); renderAuctions(); 
+    toast(`Loaded ${loaded} lots to Sotheby's.`);
+  }
 
-        let basePrice = Math.floor(Math.random() * (currentLvlData.maxPrice - currentLvlData.minPrice + 1)) + currentLvlData.minPrice;
-        let finalCash = Math.floor(basePrice * cashMult * sizeMod.mult * styleMod.mult * currentEasel.valM);
-        let finalExp = Math.floor(baseExp * sizeMod.mult * currentEasel.expM);
+  function renderAuctions() {
+    const b=$('auction-board'); if(!b)return; $('auction-count').innerText=State.auctions.length; b.innerHTML='';$('auction-idle').style.display = State.auctions.length===0 ? 'block' : 'none';
+    State.auctions.forEach((a) => {
+      let hLog = a.log.map(l=>`<div>${l}</div>`).join('');
+      let col = a.item.tierColor || '#fff';
+      
+      b.innerHTML+=`
+        <div class="auction-slot">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div style="display:flex; gap:8px; align-items:center;">
+              ${a.type === 'plane' ? `<img src="${a.item.imgData}" style="width:40px; height:40px; image-rendering:pixelated; background:#000; border:1px solid #111;" />` : ''}
+              <div>
+                <div style="font-size:12px;font-weight:bold;color:${col};">${a.item.name}</div>
+                <div class="stat-block" style="font-size:9px;">VAL: $${fmt(a.baseVal)}</div>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div id="auc-timer-${a.item.uid}" style="font-size:8.5px;color:var(--silver-dim);font-weight:bold;">TIME [${a.timer.toFixed(1)}s]</div>
+              <div id="auc-bid-${a.item.uid}" style="font-size:14px;font-weight:bold;color:var(--status-amber);font-family:monospace;">$${fmt(a.currentBid)}</div>
+            </div>
+          </div>
+          <div class="auction-timer-bg"><div id="auc-bar-${a.item.uid}" class="auction-timer-bar" style="width:${(a.timer/20)*100}%;"></div></div>
+          <div class="auction-log">${hLog}</div>
+        </div>
+      `;
+    });
+  }
 
-        player.cash += finalCash;
-        addExp(finalExp);
-        updateUI();
+  /* ================= GAME LOOP ================= */
+  const FACTIONS = ["Private Collector","Modern Art Museum","Eccentric Billionaire","Rival Studio"];
+  function gameTick() {
+    let n = Date.now();
+    let auctionChanged = false;
+    
+    // Market Timer
+    State.marketTimer -= 0.1;
+    let mT = $('market-timer'); if(mT) mT.innerText = Math.max(0, State.marketTimer).toFixed(1);
+    if(State.marketTimer <= 0) { State.marketTimer = 10.0; refreshMarket(); }
 
-        let pName = generatePaintingName();
-        logAction(`<strong>${finalQuality}/10000</strong> <span class="grade">(${gradeName})</span><br>
-                   <em>"${pName}"</em> - Sold for <span class="cash">$${formatMoney(finalCash)}</span> (+${formatMoney(finalExp)} EXP)`, cssClass);
+    // Exhibitions
+    State.fleet.forEach(p => {
+      if(p.status==='IN_FLIGHT') {
+        let pct = ((n-p.flightStart)/p.flightDuration)*100;
+        if(pct>=100) { 
+          p.status='READY'; State.funds+=p.expRev; p.condition=Math.max(10, p.condition-p.wear); updateHUD(); 
+          let st=$(`st-${p.uid}`); if(st) st.innerHTML=`STATUS: <strong style="color:#fff;">READY</strong>`; 
+          let b=$(`bar-${p.uid}`); if(b){b.style.width='0%'; b.parentElement.style.display='none';} 
+          
+          if(State.automation.autoDispatch && p.assignedRoute && p.assignedPilot) {
+            setTimeout(() => dispatchFlight(p.uid), 200);
+          } else {
+            needsFleetRender = true; 
+          }
+        } 
+        else { let b=$(`bar-${p.uid}`); if(b) b.style.width=pct+'%'; }
+      }
+    });
 
-        if (isPerfect || finalQuality === 10000) {
-            logAction(`<strong style="font-size:1.1em; color:white;">"Ted, you're Dusty..."</strong><br><small style="color:#ddd;">A flawless piece of history was created.</small>`, "log-perfect");
-            museumGallery.push({ name: pName, value: finalCash });
-            updateMuseumUI();
-        }
+    if(needsFleetRender) {
+      if($('tab-fleet').classList.contains('active')) renderFleet();
+      needsFleetRender = false;
     }
 
-    function addExp(amount) {
-        if (player.level >= 100) return;
-        player.exp += amount;
-        let currentLvlData = levelData[player.level - 1];
-        let leveledUp = false;
-
-        while (player.exp >= currentLvlData.expNeeded && player.level < 100) {
-            player.exp -= currentLvlData.expNeeded;
-            player.level++;
-            currentLvlData = levelData[player.level - 1];
-            leveledUp = true;
-        }
-
-        if(leveledUp) {
-            logAction(`<strong>Level Up!</strong> Reached Level ${player.level} (${currentLvlData.title})!`, "log-brilliant");
-        }
-    }
-
-    function buyBrush() {
-        let nextBrush = brushes[player.brushIdx + 1];
-        if (nextBrush && player.cash >= nextBrush.cost) {
-            player.cash -= nextBrush.cost;
-            player.brushIdx++;
-            updateUI();
-        }
-    }
-
-    function buyEasel() {
-        let nextEasel = easels[player.easelIdx + 1];
-        if (nextEasel && player.cash >= nextEasel.cost) {
-            player.cash -= nextEasel.cost;
-            player.easelIdx++;
-            updateUI();
-        }
-    }
-
-    function buyTech() {
-        let nextTech = techniques[player.techIdx];
-        if (nextTech && player.cash >= nextTech.cost) {
-            player.cash -= nextTech.cost;
-            player.perfectBase += nextTech.adds;
-            player.techIdx++;
-            updateUI();
-        }
-    }
-
-    function formatMoney(amount) {
-        if (amount >= 1e12) return (amount / 1e12).toFixed(2) + 'T';
-        if (amount >= 1e9) return (amount / 1e9).toFixed(2) + 'B';
-        if (amount >= 1e6) return (amount / 1e6).toFixed(2) + 'M';
-        return amount.toLocaleString();
-    }
-
-    function updateMuseumUI() {
-        let galleryContainer = document.getElementById("gallery-list");
-        if (museumGallery.length === 0) return;
-
-        let html = "";
-        for (let i = museumGallery.length - 1; i >= 0; i--) {
-            html += `
-                <div class="gallery-item">
-                    <div>
-                        <strong style="color:white;">"${museumGallery[i].name}"</strong><br>
-                        <small style="color:var(--perfect);">10,000 / 10,000</small>
-                    </div>
-                    <div style="font-weight:bold; color:var(--success);">$${formatMoney(museumGallery[i].value)}</div>
-                </div>
-            `;
-        }
-        galleryContainer.innerHTML = html;
-    }
-
-    function updateUI() {
-        document.getElementById("cash-display").innerText = "$" + formatMoney(player.cash);
-        document.getElementById("level-display").innerText = player.level;
-        document.getElementById("title-display").innerText = levelData[player.level - 1].title;
+    // Auctions
+    if(State.auctions.length>0) {
+      for(let i=State.auctions.length-1; i>=0; i--) {
+        let a=State.auctions[i]; a.timer-=0.1; 
         
-        let oddsDisplay = player.perfectBase >= 1600 ? "100%" : `${player.perfectBase} / 1600`;
-        document.getElementById("perfect-display").innerText = oddsDisplay;
+        let uiT = $(`auc-timer-${a.item.uid}`);
+        let uiB = $(`auc-bar-${a.item.uid}`);
+        let uiBid = $(`auc-bid-${a.item.uid}`);
 
-        let expNeed = levelData[player.level - 1].expNeeded;
-        if (player.level === 100) {
-            document.getElementById("exp-display").innerText = "MAX";
-            document.getElementById("exp-fill").style.width = "100%";
+        if(a.timer>0 && Math.random()<0.10) {
+          let f=FACTIONS[Math.floor(Math.random()*FACTIONS.length)]; let m=1.05+(Math.random()*0.10);
+          if(Math.random()<0.015) { m=2.0+(Math.random()*18.0); a.log.push(`<span style="color:var(--status-amber);">[BID WAR] Spike!</span>`); }
+          let nB=Math.floor(a.currentBid*m); if(nB<=a.currentBid) nB=a.currentBid+1; a.currentBid=nB;
+          a.log.push(`<span style="color:var(--silver-bright);">[${f}] bids $${fmt(a.currentBid)}</span>`);
+          if(a.log.length>3) a.log.shift();
+          if(a.timer<=1.0){ a.timer=3.0; a.log.push(`<span style="color:var(--status-red);">[OVERTIME] Reset to 3s!</span>`); }
+          if(uiBid) uiBid.innerText = "$" + fmt(a.currentBid);
+          auctionChanged = true;
         } else {
-            document.getElementById("exp-display").innerText = `${formatMoney(player.exp)} / ${formatMoney(expNeed)}`;
-            let percent = (player.exp / expNeed) * 100;
-            document.getElementById("exp-fill").style.width = percent + "%";
+          if(uiT) uiT.innerText = `TIME [${Math.max(0, a.timer).toFixed(1)}s]`;
+          if(uiB) { uiB.style.width = ((a.timer/20)*100) + '%'; uiB.style.background = a.timer <= 3 ? 'var(--status-red)' : 'var(--status-green)'; }
         }
 
-        let curBrush = brushes[player.brushIdx];
-        let curEasel = easels[player.easelIdx];
-        document.getElementById("current-brush").innerText = `${curBrush.name} (+${curBrush.bonus} Q)`;
-        document.getElementById("current-easel").innerText = `${curEasel.name} (+${Math.round((curEasel.expM - 1)*100)}% E)`;
-
-        let brushShop = document.getElementById("brush-shop");
-        let nextBrush = brushes[player.brushIdx + 1];
-        if (nextBrush) {
-            let canAfford = player.cash >= nextBrush.cost;
-            brushShop.innerHTML = `
-                <div class="shop-item">
-                    <div class="shop-info">
-                        <div>
-                            <strong>${nextBrush.name}</strong> <small>(${player.brushIdx + 2}/${brushes.length})</small><br>
-                            <small style="color:var(--success);">+${nextBrush.bonus} Quality Score</small>
-                        </div>
-                    </div>
-                    <button onclick="buyBrush()" ${canAfford ? "" : "disabled"}>Buy $${formatMoney(nextBrush.cost)}</button>
-                </div>
-            `;
-        } else {
-            brushShop.innerHTML = `<div class="shop-item"><em>All Brushes Owned!</em></div>`;
+        if(a.timer<=0){ 
+          State.funds+=a.currentBid; State.statAuctionsSold++;
+          toast(`SOLD for $${fmt(a.currentBid)}!`); 
+          State.auctions.splice(i,1); updateHUD(); 
+          auctionChanged = true;
         }
-
-        let easelShop = document.getElementById("easel-shop");
-        let nextEasel = easels[player.easelIdx + 1];
-        if (nextEasel) {
-            let canAfford = player.cash >= nextEasel.cost;
-            easelShop.innerHTML = `
-                <div class="shop-item">
-                    <div class="shop-info">
-                        <div>
-                            <strong>${nextEasel.name}</strong> <small>(${player.easelIdx + 2}/${easels.length})</small><br>
-                            <small style="color:var(--gold);">+${Math.round((nextEasel.expM - 1)*100)}% EXP, +${Math.round((nextEasel.valM - 1)*100)}% Val</small>
-                        </div>
-                    </div>
-                    <button onclick="buyEasel()" ${canAfford ? "" : "disabled"}>Buy $${formatMoney(nextEasel.cost)}</button>
-                </div>
-            `;
-        } else {
-            easelShop.innerHTML = `<div class="shop-item"><em>All Easels Owned!</em></div>`;
-        }
-
-        let techShop = document.getElementById("tech-shop");
-        let nextTech = techniques[player.techIdx];
-        if (nextTech) {
-            let canAfford = player.cash >= nextTech.cost;
-            techShop.innerHTML = `
-                <div class="shop-item">
-                    <div class="shop-info">
-                        <div>
-                            <strong>${nextTech.name}</strong> <small>(${player.techIdx + 1}/${techniques.length})</small><br>
-                            <small style="color:var(--perfect);">+${nextTech.adds} Perfect Odds (Numerator)</small>
-                        </div>
-                    </div>
-                    <button onclick="buyTech()" ${canAfford ? "" : "disabled"}>Buy $${formatMoney(nextTech.cost)}</button>
-                </div>
-            `;
-        } else {
-            techShop.innerHTML = `<div class="shop-item"><em>Maximum Inspiration Reached!</em></div>`;
-        }
-        
-        updateCostUI();
+      }
+      
+      if(auctionChanged && $('tab-auction').classList.contains('active')) renderAuctions();
     }
+  }
 
-    function logAction(message, cssClass = "") {
-        let logList = document.getElementById("log-list");
-        let entry = document.createElement("div");
-        entry.className = `log-entry ${cssClass}`;
-        entry.innerHTML = message;
-        logList.prepend(entry);
-        
-        if (logList.children.length > 30) {
-            logList.removeChild(logList.lastChild);
-        }
-    }
+  /* ================= INIT & NAVIGATION ================= */
+  function setTab(tabId) {
+    document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); if(b.getAttribute('onclick').includes(tabId)) b.classList.add('active'); });
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+    const target = $('tab-'+tabId); if(target) target.classList.add('active');
 
-    updateUI();
+    if(tabId==='fleet') renderFleet();
+    if(tabId==='auction') renderAuctions();
+    if(tabId==='gallery') renderGallery();
+  }
+  function godMode() {
+    State.funds += 2000000000; State.fuelReserve += 10000000;
+    State.fleet.forEach(p => p.condition = 100);
+    toast("BOB's MAGIC: +$2B Cash, +10M Supplies, Studio Restored.");
+    updateHUD(); renderFleet();
+  }
 
+  function initUI() {
+    if(!State.gallery) State.gallery = [];
+    if(!State.routes || State.routes.length < 400) State.routes = generateRoutes();
+    updateHUD(); refreshMarket();
+    if(globalInterval) clearInterval(globalInterval); globalInterval = setInterval(gameTick, 100);
+  }
+  initUI();
 </script>
 </body>
 </html>
